@@ -1,10 +1,8 @@
-const { app, BrowserWindow, Menu, shell } = require('electron');
+const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
 const path = require('path');
-const { spawn } = require('child_process');
-const http = require('http');
+const db = require('./database');
 
 let mainWindow;
-let pythonProcess;
 
 function createMenu() {
   const template = [
@@ -100,7 +98,7 @@ function createMenu() {
                   <p>Version 1.0.0</p>
                   <p>Your Personal Stock Portfolio Manager</p>
                   <br>
-                  <p style="font-size: 12px; opacity: 0.8;">Built with Electron, React, and Python Flask</p>
+                  <p style="font-size: 12px; opacity: 0.8;">Built with Electron, React, and SQLite</p>
                   <p style="font-size: 12px; opacity: 0.8;">© 2026 Investo Contributors</p>
                 </body>
               </html>
@@ -124,8 +122,9 @@ function createWindow() {
     title: 'Investo - Stock Portfolio Manager',
     backgroundColor: '#f5f5f5',
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, 'public', 'icon.png')
   });
@@ -153,89 +152,89 @@ function createWindow() {
   });
 }
 
-function checkBackendHealth(retries = 10) {
-  return new Promise((resolve, reject) => {
-    const attempt = () => {
-      http.get('http://localhost:5555/api/health', (res) => {
-        if (res.statusCode === 200) {
-          console.log('Backend is ready!');
-          resolve();
-        } else {
-          retry();
-        }
-      }).on('error', () => {
-        retry();
-      });
-    };
+// Setup IPC handlers for database operations
+function setupIPCHandlers() {
+  ipcMain.handle('get-portfolios', async () => {
+    try {
+      return { success: true, data: db.getPortfolios() };
+    } catch (error) {
+      console.error('Error getting portfolios:', error);
+      return { success: false, error: error.message };
+    }
+  });
 
-    const retry = () => {
-      if (retries > 0) {
-        retries--;
-        console.log(`Waiting for backend... (${10 - retries}/10)`);
-        setTimeout(attempt, 1000);
-      } else {
-        reject(new Error('Backend failed to start'));
+  ipcMain.handle('create-portfolio', async (event, name) => {
+    try {
+      const portfolio = db.createPortfolio(name);
+      return { success: true, data: portfolio };
+    } catch (error) {
+      console.error('Error creating portfolio:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('get-portfolio', async (event, portfolioId) => {
+    try {
+      const portfolio = db.getPortfolio(portfolioId);
+      if (!portfolio) {
+        return { success: false, error: 'Portfolio not found' };
       }
-    };
-
-    attempt();
-  });
-}
-
-function startPythonBackend() {
-  const pythonScript = path.join(__dirname, '..', 'backend', 'app.py');
-
-  // Use 'python' on Windows, 'python3' on Unix-like systems
-  const pythonCommand = process.platform === 'win32' ? 'python' : 'python3';
-
-  console.log('Starting Python backend...');
-  console.log('Python command:', pythonCommand);
-  console.log('Script path:', pythonScript);
-  console.log('Working directory:', path.join(__dirname, '..', 'backend'));
-
-  // Use -u flag to run Python in unbuffered mode (important for subprocess output)
-  pythonProcess = spawn(pythonCommand, ['-u', pythonScript], {
-    cwd: path.join(__dirname, '..', 'backend'),
-    shell: process.platform === 'win32', // Use shell on Windows for better compatibility
-    env: { ...process.env, PYTHONUNBUFFERED: '1' } // Ensure unbuffered output
+      return { success: true, data: portfolio };
+    } catch (error) {
+      console.error('Error getting portfolio:', error);
+      return { success: false, error: error.message };
+    }
   });
 
-  pythonProcess.stdout.on('data', (data) => {
-    console.log(`Backend: ${data.toString().trim()}`);
+  ipcMain.handle('add-holding', async (event, portfolioId, holding) => {
+    try {
+      const result = db.addHolding(
+        portfolioId,
+        holding.symbol,
+        holding.shares,
+        holding.purchase_price,
+        holding.purchase_date
+      );
+      return { success: true, data: result };
+    } catch (error) {
+      console.error('Error adding holding:', error);
+      return { success: false, error: error.message };
+    }
   });
 
-  pythonProcess.stderr.on('data', (data) => {
-    console.error(`Backend Error: ${data.toString().trim()}`);
+  ipcMain.handle('delete-holding', async (event, portfolioId, holdingId) => {
+    try {
+      db.deleteHolding(portfolioId, holdingId);
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting holding:', error);
+      return { success: false, error: error.message };
+    }
   });
 
-  pythonProcess.on('error', (error) => {
-    console.error('Failed to start Python process:', error);
-  });
-
-  pythonProcess.on('close', (code) => {
-    console.log(`Backend process exited with code ${code}`);
-    if (code !== 0 && code !== null) {
-      console.error('Backend crashed! Please check the logs above.');
+  ipcMain.handle('get-transactions', async (event, portfolioId) => {
+    try {
+      const transactions = db.getTransactions(portfolioId);
+      return { success: true, data: transactions };
+    } catch (error) {
+      console.error('Error getting transactions:', error);
+      return { success: false, error: error.message };
     }
   });
 }
 
-app.on('ready', async () => {
-  startPythonBackend();
+app.on('ready', () => {
+  console.log('Initializing database...');
+  db.initDatabase();
 
-  try {
-    await checkBackendHealth();
-    createWindow();
-  } catch (error) {
-    console.error('Failed to start backend:', error);
-    app.quit();
-  }
+  console.log('Setting up IPC handlers...');
+  setupIPCHandlers();
+
+  console.log('Creating window...');
+  createWindow();
 });
 
 app.on('window-all-closed', function () {
-  if (pythonProcess) {
-    pythonProcess.kill();
-  }
   if (process.platform !== 'darwin') {
     app.quit();
   }
@@ -248,7 +247,6 @@ app.on('activate', function () {
 });
 
 app.on('quit', () => {
-  if (pythonProcess) {
-    pythonProcess.kill();
-  }
+  console.log('Closing database...');
+  db.closeDatabase();
 });
