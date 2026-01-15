@@ -176,7 +176,7 @@ investo/
 
 ## License
 
-MIT
+BSD 3-Clause License - see [LICENSE](LICENSE) file for details
 
 ## Contributing
 
