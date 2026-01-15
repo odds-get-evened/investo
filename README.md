@@ -31,9 +31,8 @@ A desktop application for consumer investors to visualize and manage their stock
 
 - Node.js (v16 or higher)
 - Python 3.7 or higher
-- npm or yarn
 
-## Installation
+## Quick Start
 
 ### 1. Clone the repository
 
@@ -42,55 +41,39 @@ git clone <repository-url>
 cd investo
 ```
 
-### 2. Set up the Python backend
+### 2. Run setup (one time only)
 
 ```bash
-cd backend
-pip install -r requirements.txt
+./setup.sh
 ```
 
-### 3. Set up the Electron frontend
+This will install all Python and Node.js dependencies automatically.
+
+### 3. Start the application
 
 ```bash
-cd ../frontend
-npm install
+./run.sh
 ```
 
-## Running the Application
+That's it! The application will build the frontend and launch automatically. The Python backend starts automatically when you open the app.
 
-### Option 1: Development Mode
+## Development Mode
 
-You'll need to run both the backend and frontend separately:
+For developers who want to work on the code with hot-reloading:
 
-**Terminal 1 - Start Python Backend:**
-```bash
-cd backend
-python3 app.py
-```
-
-The API will be available at `http://localhost:5000`
-
-**Terminal 2 - Start Electron App (Development):**
+**Terminal 1 - Start Vite dev server:**
 ```bash
 cd frontend
 npm run dev
 ```
 
-Then in another terminal:
+**Terminal 2 - Start Electron in development mode:**
 ```bash
 cd frontend
 NODE_ENV=development npm start
 ```
 
-### Option 2: Production Mode
-
-The Electron app will automatically start the Python backend:
-
-```bash
-cd frontend
-npm run build
-npm start
-```
+The Python backend starts automatically. The frontend will hot-reload on changes.
 
 ## API Endpoints
 
@@ -111,26 +94,31 @@ npm start
 
 ```
 investo/
+├── setup.sh               # One-time setup script
+├── run.sh                 # Application launcher
+├── LICENSE                # BSD 3-Clause license
+├── README.md              # This file
+├── ARCHITECTURE.md        # Technical documentation
+├── .gitignore             # Git ignore rules
+│
 ├── backend/
-│   ├── app.py              # Flask API server
-│   ├── requirements.txt    # Python dependencies
-│   ├── .env.example        # Environment variables template
-│   └── portfolio.db        # SQLite database (created automatically)
+│   ├── app.py             # Flask API server
+│   ├── requirements.txt   # Python dependencies
+│   ├── .env.example       # Environment variables template
+│   └── portfolio.db       # SQLite database (auto-created)
 │
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── HoldingsTable.jsx
-│   │   │   └── PortfolioChart.jsx
-│   │   ├── App.jsx         # Main React component
-│   │   ├── main.jsx        # React entry point
-│   │   └── index.css       # Global styles
-│   ├── main.js             # Electron main process
-│   ├── index.html          # HTML template
-│   ├── vite.config.js      # Vite configuration
-│   └── package.json        # Node dependencies
-│
-└── README.md
+└── frontend/
+    ├── src/
+    │   ├── components/
+    │   │   ├── HoldingsTable.jsx    # Holdings table component
+    │   │   └── PortfolioChart.jsx   # Chart visualization
+    │   ├── App.jsx          # Main React component
+    │   ├── main.jsx         # React entry point
+    │   └── index.css        # Global styles
+    ├── main.js              # Electron main process
+    ├── index.html           # HTML template
+    ├── vite.config.js       # Vite configuration
+    └── package.json         # Node dependencies
 ```
 
 ## Usage
