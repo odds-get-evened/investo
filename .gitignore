@@ -19,6 +19,14 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Electron Builder
+release/
+*.exe
+*.dmg
+*.AppImage
+*.deb
+*.rpm
+
 # IDE
 .vscode/
 .idea/
