@@ -43,16 +43,28 @@ cd investo
 
 ### 2. Run setup (one time only)
 
+**Linux/macOS:**
 ```bash
 ./setup.sh
+```
+
+**Windows:**
+```batch
+setup.bat
 ```
 
 This will install all Python and Node.js dependencies automatically.
 
 ### 3. Start the application
 
+**Linux/macOS:**
 ```bash
 ./run.sh
+```
+
+**Windows:**
+```batch
+run.bat
 ```
 
 That's it! The application will build the frontend and launch automatically. The Python backend starts automatically when you open the app.
@@ -75,6 +87,36 @@ NODE_ENV=development npm start
 
 The Python backend starts automatically. The frontend will hot-reload on changes.
 
+## Building Installers
+
+To create distributable installers for end users:
+
+**Windows Installer (.exe):**
+```batch
+build-installer.bat
+```
+
+**Linux/macOS Installers:**
+```bash
+./build-installer.sh
+```
+
+The build script will create installers in `frontend/release/`:
+- **Windows**: NSIS installer (.exe)
+- **macOS**: DMG file (.dmg)
+- **Linux**: AppImage and DEB package
+
+**Manual build commands:**
+```bash
+cd frontend
+npm run dist:win    # Windows
+npm run dist:mac    # macOS
+npm run dist:linux  # Linux
+npm run dist        # Current platform
+```
+
+Note: Building for macOS requires a Mac, and code signing requires an Apple Developer account.
+
 ## API Endpoints
 
 ### Portfolios
@@ -94,8 +136,12 @@ The Python backend starts automatically. The frontend will hot-reload on changes
 
 ```
 investo/
-├── setup.sh               # One-time setup script
-├── run.sh                 # Application launcher
+├── setup.sh               # One-time setup script (Linux/macOS)
+├── setup.bat              # One-time setup script (Windows)
+├── run.sh                 # Application launcher (Linux/macOS)
+├── run.bat                # Application launcher (Windows)
+├── build-installer.sh     # Build installers (Linux/macOS)
+├── build-installer.bat    # Build Windows installer
 ├── LICENSE                # BSD 3-Clause license
 ├── README.md              # This file
 ├── ARCHITECTURE.md        # Technical documentation
@@ -118,7 +164,8 @@ investo/
     ├── main.js              # Electron main process
     ├── index.html           # HTML template
     ├── vite.config.js       # Vite configuration
-    └── package.json         # Node dependencies
+    ├── package.json         # Node dependencies & build config
+    └── release/             # Built installers (after build)
 ```
 
 ## Usage
