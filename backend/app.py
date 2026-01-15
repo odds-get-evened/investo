@@ -166,14 +166,15 @@ if __name__ == '__main__':
     print("Initializing database...")
     init_db()
     print("Database initialized successfully!")
-    print("Starting Flask server on http://localhost:5000")
+    print("Starting Flask server on http://localhost:5555")
     print("Press Ctrl+C to stop the server")
 
     # Disable reloader on Windows to avoid subprocess issues
     # Set host to localhost explicitly for security
+    # Using port 5555 to avoid conflicts with other services
     app.run(
         host='127.0.0.1',
-        port=5000,
+        port=5555,
         debug=False,
         use_reloader=False
     )

@@ -33,7 +33,7 @@ function createWindow() {
 function checkBackendHealth(retries = 10) {
   return new Promise((resolve, reject) => {
     const attempt = () => {
-      http.get('http://localhost:5000/api/health', (res) => {
+      http.get('http://localhost:5555/api/health', (res) => {
         if (res.statusCode === 200) {
           console.log('Backend is ready!');
           resolve();
