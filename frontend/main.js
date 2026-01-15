@@ -66,8 +66,13 @@ function startPythonBackend() {
   const pythonCommand = process.platform === 'win32' ? 'python' : 'python3';
 
   console.log('Starting Python backend...');
+  console.log('Python command:', pythonCommand);
+  console.log('Script path:', pythonScript);
+  console.log('Working directory:', path.join(__dirname, '..', 'backend'));
+
   pythonProcess = spawn(pythonCommand, [pythonScript], {
-    cwd: path.join(__dirname, '..', 'backend')
+    cwd: path.join(__dirname, '..', 'backend'),
+    shell: process.platform === 'win32' // Use shell on Windows for better compatibility
   });
 
   pythonProcess.stdout.on('data', (data) => {
@@ -78,10 +83,14 @@ function startPythonBackend() {
     console.error(`Backend Error: ${data.toString().trim()}`);
   });
 
+  pythonProcess.on('error', (error) => {
+    console.error('Failed to start Python process:', error);
+  });
+
   pythonProcess.on('close', (code) => {
     console.log(`Backend process exited with code ${code}`);
     if (code !== 0 && code !== null) {
-      console.error('Backend crashed! Please check the logs.');
+      console.error('Backend crashed! Please check the logs above.');
     }
   });
 }

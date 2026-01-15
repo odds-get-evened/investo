@@ -163,5 +163,17 @@ def get_transactions(portfolio_id):
     return jsonify([dict(row) for row in transactions])
 
 if __name__ == '__main__':
+    print("Initializing database...")
     init_db()
-    app.run(debug=True, port=5000)
+    print("Database initialized successfully!")
+    print("Starting Flask server on http://localhost:5000")
+    print("Press Ctrl+C to stop the server")
+
+    # Disable reloader on Windows to avoid subprocess issues
+    # Set host to localhost explicitly for security
+    app.run(
+        host='127.0.0.1',
+        port=5000,
+        debug=False,
+        use_reloader=False
+    )
