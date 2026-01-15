@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu, shell } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const http = require('http');
@@ -6,15 +6,132 @@ const http = require('http');
 let mainWindow;
 let pythonProcess;
 
+function createMenu() {
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'New Portfolio',
+          accelerator: 'CmdOrCtrl+N',
+          click: () => {
+            mainWindow.webContents.send('new-portfolio');
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Exit',
+          accelerator: 'CmdOrCtrl+Q',
+          click: () => {
+            app.quit();
+          }
+        }
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'Documentation',
+          click: async () => {
+            await shell.openExternal('https://github.com/odds-get-evened/investo');
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'About Investo',
+          click: () => {
+            const aboutWindow = new BrowserWindow({
+              width: 400,
+              height: 300,
+              resizable: false,
+              minimizable: false,
+              maximizable: false,
+              title: 'About Investo'
+            });
+            aboutWindow.setMenu(null);
+            aboutWindow.loadURL(`data:text/html;charset=utf-8,
+              <html>
+                <head>
+                  <style>
+                    body {
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center;
+                      justify-content: center;
+                      height: 100vh;
+                      margin: 0;
+                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                      color: white;
+                      text-align: center;
+                    }
+                    h1 { margin: 10px 0; }
+                    p { margin: 5px 0; }
+                  </style>
+                </head>
+                <body>
+                  <h1>Investo</h1>
+                  <p>Version 1.0.0</p>
+                  <p>Your Personal Stock Portfolio Manager</p>
+                  <br>
+                  <p style="font-size: 12px; opacity: 0.8;">Built with Electron, React, and Python Flask</p>
+                  <p style="font-size: 12px; opacity: 0.8;">© 2026 Investo Contributors</p>
+                </body>
+              </html>
+            `);
+          }
+        }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    minWidth: 800,
+    minHeight: 600,
+    title: 'Investo - Stock Portfolio Manager',
+    backgroundColor: '#f5f5f5',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
-    }
+    },
+    icon: path.join(__dirname, 'public', 'icon.png')
   });
+
+  // Create application menu
+  createMenu();
 
   // In development, load from Vite dev server
   // In production, load from built files
@@ -24,6 +141,12 @@ function createWindow() {
   } else {
     mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
   }
+
+  // Open external links in browser
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
 
   mainWindow.on('closed', function () {
     mainWindow = null;
