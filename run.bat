@@ -1,6 +1,6 @@
 @echo off
 REM Investo Run Script for Windows
-REM This script starts the application in production mode
+REM This script starts the application
 
 echo =========================================
 echo   Starting Investo
@@ -15,16 +15,7 @@ if not exist "frontend\node_modules" (
     exit /b 1
 )
 
-REM Check for Python dependencies
-python -c "import flask" >nul 2>&1
-if %errorlevel% neq 0 (
-    echo Error: Python dependencies not installed.
-    echo Please run 'setup.bat' first.
-    pause
-    exit /b 1
-)
-
-REM Build and run the app (Electron will auto-start the backend)
+REM Build and run the app
 echo Building frontend and starting application...
 echo.
 cd frontend

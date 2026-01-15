@@ -1,6 +1,6 @@
 # Investo
 
-A desktop application for consumer investors to visualize and manage their stock portfolios. Built with Electron, React, and Python Flask.
+A self-contained desktop application for consumer investors to visualize and manage their stock portfolios. Built with Electron, React, and SQLite.
 
 ## Features
 
@@ -17,20 +17,21 @@ A desktop application for consumer investors to visualize and manage their stock
   - Modern React components with hooks
   - Recharts for data visualization
   - Responsive design
+  - IPC communication with main process
 
-- **Backend**: Python Flask REST API
-  - RESTful API endpoints
-  - SQLite embedded database
-  - CORS enabled for local development
+- **Backend**: Electron Main Process
+  - SQLite database via better-sqlite3
+  - IPC handlers for all operations
+  - Fully self-contained (no external server needed)
 
 - **Data Storage**: SQLite database (embedded)
   - Portfolios, holdings, and transactions tables
   - Automatic schema initialization
+  - Stored in user data directory
 
 ## Prerequisites
 
 - Node.js (v16 or higher)
-- Python 3.7 or higher
 
 ## Quick Start
 
@@ -67,7 +68,7 @@ This will install all Python and Node.js dependencies automatically.
 run.bat
 ```
 
-That's it! The application will build the frontend and launch automatically. The Python backend starts automatically when you open the app.
+That's it! The application will build the frontend and launch automatically. Everything runs in a single process - no separate backend needed!
 
 ## Development Mode
 
@@ -85,7 +86,7 @@ cd frontend
 NODE_ENV=development npm start
 ```
 
-The Python backend starts automatically. The frontend will hot-reload on changes.
+The SQLite database is managed by the Electron main process. The frontend will hot-reload on changes.
 
 ## Building Installers
 
@@ -117,22 +118,18 @@ npm run dist        # Current platform
 
 Note: Building for macOS requires a Mac, and code signing requires an Apple Developer account.
 
-## API Endpoints
+## IPC API
 
-The backend API runs on `http://localhost:5555`
+The application uses Electron IPC for communication between the renderer and main process:
 
-### Portfolios
+### Available Operations
 
-- `GET /api/health` - Health check
-- `GET /api/portfolios` - Get all portfolios
-- `POST /api/portfolios` - Create a new portfolio
-- `GET /api/portfolios/:id` - Get portfolio details with holdings
-- `GET /api/portfolios/:id/transactions` - Get transaction history
-
-### Holdings
-
-- `POST /api/portfolios/:id/holdings` - Add a holding to a portfolio
-- `DELETE /api/portfolios/:id/holdings/:holdingId` - Delete a holding
+- `getPortfolios()` - Get all portfolios
+- `createPortfolio(name)` - Create a new portfolio
+- `getPortfolio(portfolioId)` - Get portfolio details with holdings
+- `addHolding(portfolioId, holding)` - Add a holding to a portfolio
+- `deleteHolding(portfolioId, holdingId)` - Delete a holding
+- `getTransactions(portfolioId)` - Get transaction history
 
 ## Project Structure
 
@@ -149,12 +146,6 @@ investo/
 ├── ARCHITECTURE.md        # Technical documentation
 ├── .gitignore             # Git ignore rules
 │
-├── backend/
-│   ├── app.py             # Flask API server
-│   ├── requirements.txt   # Python dependencies
-│   ├── .env.example       # Environment variables template
-│   └── portfolio.db       # SQLite database (auto-created)
-│
 └── frontend/
     ├── src/
     │   ├── components/
@@ -164,6 +155,8 @@ investo/
     │   ├── main.jsx         # React entry point
     │   └── index.css        # Global styles
     ├── main.js              # Electron main process
+    ├── preload.js           # Preload script for IPC
+    ├── database.js          # SQLite database operations
     ├── index.html           # HTML template
     ├── vite.config.js       # Vite configuration
     ├── package.json         # Node dependencies & build config

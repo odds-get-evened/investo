@@ -28,7 +28,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "recharts": "^2.10.3",
-    "axios": "^1.6.2"
+    "better-sqlite3": "^9.2.2"
   },
   "build": {
     "appId": "com.investo.app",
@@ -39,17 +39,10 @@
     "files": [
       "dist/**/*",
       "main.js",
+      "preload.js",
+      "database.js",
       "package.json",
-      "../backend/**/*",
-      "!../backend/__pycache__",
-      "!../backend/*.db"
-    ],
-    "extraResources": [
-      {
-        "from": "../backend",
-        "to": "backend",
-        "filter": ["**/*", "!__pycache__", "!*.db"]
-      }
+      "node_modules/better-sqlite3/**/*"
     ],
     "win": {
       "target": [

@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import PortfolioChart from './components/PortfolioChart';
 import HoldingsTable from './components/HoldingsTable';
-
-const API_BASE_URL = 'http://localhost:5555/api';
 
 function App() {
   const [portfolios, setPortfolios] = useState([]);
@@ -33,9 +30,13 @@ function App() {
   const fetchPortfolios = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/portfolios`);
-      setPortfolios(response.data);
-      setError(null);
+      const response = await window.api.getPortfolios();
+      if (response.success) {
+        setPortfolios(response.data);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to fetch portfolios');
+      }
     } catch (err) {
       setError('Failed to fetch portfolios');
       console.error(err);
@@ -47,9 +48,13 @@ function App() {
   const fetchPortfolioDetails = async (portfolioId) => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/portfolios/${portfolioId}`);
-      setPortfolioDetails(response.data);
-      setError(null);
+      const response = await window.api.getPortfolio(portfolioId);
+      if (response.success) {
+        setPortfolioDetails(response.data);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to fetch portfolio details');
+      }
     } catch (err) {
       setError('Failed to fetch portfolio details');
       console.error(err);
@@ -65,12 +70,14 @@ function App() {
     }
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/portfolios`, {
-        name: newPortfolioName
-      });
-      setPortfolios([...portfolios, response.data]);
-      setNewPortfolioName('');
-      setError(null);
+      const response = await window.api.createPortfolio(newPortfolioName);
+      if (response.success) {
+        setPortfolios([...portfolios, response.data]);
+        setNewPortfolioName('');
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to create portfolio');
+      }
     } catch (err) {
       setError('Failed to create portfolio');
       console.error(err);
@@ -89,18 +96,19 @@ function App() {
     }
 
     try {
-      await axios.post(
-        `${API_BASE_URL}/portfolios/${selectedPortfolio.id}/holdings`,
-        newHolding
-      );
-      setNewHolding({
-        symbol: '',
-        shares: '',
-        purchase_price: '',
-        purchase_date: new Date().toISOString().split('T')[0]
-      });
-      fetchPortfolioDetails(selectedPortfolio.id);
-      setError(null);
+      const response = await window.api.addHolding(selectedPortfolio.id, newHolding);
+      if (response.success) {
+        setNewHolding({
+          symbol: '',
+          shares: '',
+          purchase_price: '',
+          purchase_date: new Date().toISOString().split('T')[0]
+        });
+        fetchPortfolioDetails(selectedPortfolio.id);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to add holding');
+      }
     } catch (err) {
       setError('Failed to add holding');
       console.error(err);
@@ -111,11 +119,13 @@ function App() {
     if (!selectedPortfolio) return;
 
     try {
-      await axios.delete(
-        `${API_BASE_URL}/portfolios/${selectedPortfolio.id}/holdings/${holdingId}`
-      );
-      fetchPortfolioDetails(selectedPortfolio.id);
-      setError(null);
+      const response = await window.api.deleteHolding(selectedPortfolio.id, holdingId);
+      if (response.success) {
+        fetchPortfolioDetails(selectedPortfolio.id);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to delete holding');
+      }
     } catch (err) {
       setError('Failed to delete holding');
       console.error(err);

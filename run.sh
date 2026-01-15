@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Investo Run Script
-# This script starts the application in production mode
+# This script starts the application
 
 set -e
 
@@ -17,14 +17,7 @@ if [ ! -d "frontend/node_modules" ]; then
     exit 1
 fi
 
-# Check for Python dependencies
-if ! python3 -c "import flask" &> /dev/null; then
-    echo "Error: Python dependencies not installed."
-    echo "Please run './setup.sh' first."
-    exit 1
-fi
-
-# Build and run the app (Electron will auto-start the backend)
+# Build and run the app
 echo "Building frontend and starting application..."
 echo ""
 cd frontend
