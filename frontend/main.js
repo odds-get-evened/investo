@@ -62,8 +62,11 @@ function checkBackendHealth(retries = 10) {
 function startPythonBackend() {
   const pythonScript = path.join(__dirname, '..', 'backend', 'app.py');
 
+  // Use 'python' on Windows, 'python3' on Unix-like systems
+  const pythonCommand = process.platform === 'win32' ? 'python' : 'python3';
+
   console.log('Starting Python backend...');
-  pythonProcess = spawn('python3', [pythonScript], {
+  pythonProcess = spawn(pythonCommand, [pythonScript], {
     cwd: path.join(__dirname, '..', 'backend')
   });
 
