@@ -70,9 +70,11 @@ function startPythonBackend() {
   console.log('Script path:', pythonScript);
   console.log('Working directory:', path.join(__dirname, '..', 'backend'));
 
-  pythonProcess = spawn(pythonCommand, [pythonScript], {
+  // Use -u flag to run Python in unbuffered mode (important for subprocess output)
+  pythonProcess = spawn(pythonCommand, ['-u', pythonScript], {
     cwd: path.join(__dirname, '..', 'backend'),
-    shell: process.platform === 'win32' // Use shell on Windows for better compatibility
+    shell: process.platform === 'win32', // Use shell on Windows for better compatibility
+    env: { ...process.env, PYTHONUNBUFFERED: '1' } // Ensure unbuffered output
   });
 
   pythonProcess.stdout.on('data', (data) => {
