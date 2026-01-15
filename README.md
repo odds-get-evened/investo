@@ -119,6 +119,8 @@ Note: Building for macOS requires a Mac, and code signing requires an Apple Deve
 
 ## API Endpoints
 
+The backend API runs on `http://localhost:5555`
+
 ### Portfolios
 
 - `GET /api/health` - Health check

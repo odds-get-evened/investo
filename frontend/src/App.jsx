@@ -3,7 +3,7 @@ import axios from 'axios';
 import PortfolioChart from './components/PortfolioChart';
 import HoldingsTable from './components/HoldingsTable';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:5555/api';
 
 function App() {
   const [portfolios, setPortfolios] = useState([]);
