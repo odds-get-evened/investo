@@ -67,7 +67,7 @@ function PriceUpdateButton({ holdings, onUpdatePrices }) {
 
       {!updating && holdings.length > 0 && (
         <div className="update-note">
-          Note: Free API allows ~5 symbols/minute. Large portfolios will take time.
+          Using Yahoo Finance API (no key required). Updates ~1 symbol/second.
         </div>
       )}
     </div>

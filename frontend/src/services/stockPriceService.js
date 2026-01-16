@@ -1,8 +1,9 @@
 // Stock Price Service
-// Uses Alpha Vantage API (free tier: 25 requests/day)
-// Get your free API key at: https://www.alphavantage.co/support/#api-key
+// Uses Finnhub API (free tier: 60 requests/minute)
+// Get your free API key at: https://finnhub.io/register
+// Alternative fallback: Yahoo Finance (no key required but less reliable)
 
-const DEFAULT_API_KEY = 'demo'; // Users should replace this with their own key
+const DEFAULT_API_KEY = 'demo'; // Users should replace this with their own Finnhub key
 const CACHE_DURATION = 60 * 1000; // 1 minute cache
 
 const priceCache = new Map();
@@ -12,11 +13,63 @@ const priceCache = new Map();
  * @returns {string} API key
  */
 function getConfiguredApiKey() {
-  return localStorage.getItem('alpha-vantage-key') || DEFAULT_API_KEY;
+  return localStorage.getItem('finnhub-api-key') || DEFAULT_API_KEY;
 }
 
 /**
- * Fetch current stock price from Alpha Vantage
+ * Fetch stock price from Finnhub
+ * @param {string} symbol - Stock symbol (e.g., 'AAPL')
+ * @returns {Promise<number|null>} Current price or null if failed
+ */
+async function fetchFromFinnhub(symbol) {
+  try {
+    const apiKey = getConfiguredApiKey();
+    const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    // Finnhub returns current price in 'c' field
+    if (data.c && data.c > 0) {
+      return data.c;
+    }
+
+    return null;
+  } catch (error) {
+    console.error(`Finnhub error for ${symbol}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetch stock price from Yahoo Finance (fallback, no API key needed)
+ * @param {string} symbol - Stock symbol (e.g., 'AAPL')
+ * @returns {Promise<number|null>} Current price or null if failed
+ */
+async function fetchFromYahoo(symbol) {
+  try {
+    // Using Yahoo Finance v8 API endpoint
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.chart && data.chart.result && data.chart.result[0]) {
+      const result = data.chart.result[0];
+      const price = result.meta?.regularMarketPrice;
+
+      if (price && price > 0) {
+        return price;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error(`Yahoo Finance error for ${symbol}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetch current stock price with fallback support
  * @param {string} symbol - Stock symbol (e.g., 'AAPL')
  * @returns {Promise<number|null>} Current price or null if failed
  */
@@ -27,34 +80,23 @@ export async function fetchStockPrice(symbol) {
     return cached.price;
   }
 
-  try {
-    const apiKey = getConfiguredApiKey();
-    const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
-    const response = await fetch(url);
-    const data = await response.json();
+  // Try Yahoo Finance first (no API key required)
+  let price = await fetchFromYahoo(symbol);
 
-    if (data['Global Quote'] && data['Global Quote']['05. price']) {
-      const price = parseFloat(data['Global Quote']['05. price']);
-
-      // Cache the result
-      priceCache.set(symbol, {
-        price,
-        timestamp: Date.now()
-      });
-
-      return price;
-    }
-
-    // If API limit reached or error, return null
-    if (data.Note || data['Error Message']) {
-      console.warn(`API limit or error for ${symbol}:`, data.Note || data['Error Message']);
-    }
-
-    return null;
-  } catch (error) {
-    console.error(`Failed to fetch price for ${symbol}:`, error);
-    return null;
+  // If Yahoo fails, try Finnhub
+  if (price === null) {
+    price = await fetchFromFinnhub(symbol);
   }
+
+  // Cache the result if successful
+  if (price !== null) {
+    priceCache.set(symbol, {
+      price,
+      timestamp: Date.now()
+    });
+  }
+
+  return price;
 }
 
 /**
@@ -79,9 +121,10 @@ export async function fetchMultipleStockPrices(symbols, onProgress = null) {
       onProgress(symbol, price, i + 1, uniqueSymbols.length);
     }
 
-    // Rate limiting: wait 12 seconds between requests (5 per minute for free tier)
+    // Rate limiting: wait 1 second between requests to be respectful
+    // Yahoo Finance can handle this, Finnhub allows 60/min
     if (i < uniqueSymbols.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 12000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
 
@@ -89,12 +132,12 @@ export async function fetchMultipleStockPrices(symbols, onProgress = null) {
 }
 
 /**
- * Set custom API key
- * @param {string} apiKey - Alpha Vantage API key
+ * Set custom Finnhub API key
+ * @param {string} apiKey - Finnhub API key
  */
 export function setApiKey(apiKey) {
   if (apiKey && apiKey.trim().length > 0) {
-    localStorage.setItem('alpha-vantage-key', apiKey);
+    localStorage.setItem('finnhub-api-key', apiKey);
   }
 }
 
@@ -103,7 +146,7 @@ export function setApiKey(apiKey) {
  * @returns {string} API key
  */
 export function getApiKey() {
-  return localStorage.getItem('alpha-vantage-key') || ALPHA_VANTAGE_KEY;
+  return getConfiguredApiKey();
 }
 
 /**
