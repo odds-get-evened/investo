@@ -9,6 +9,10 @@ function App() {
   const [newPortfolioName, setNewPortfolioName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('investo-theme');
+    return saved ? saved === 'dark' : false;
+  });
 
   const [newHolding, setNewHolding] = useState({
     symbol: '',
@@ -20,6 +24,11 @@ function App() {
   useEffect(() => {
     fetchPortfolios();
   }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    localStorage.setItem('investo-theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
 
   useEffect(() => {
     if (selectedPortfolio) {
@@ -135,8 +144,19 @@ function App() {
   return (
     <div className="app">
       <div className="header">
-        <h1>Investo</h1>
-        <p>Your Personal Stock Portfolio Manager</p>
+        <div className="header-content">
+          <div>
+            <h1>Investo</h1>
+            <p>Your Personal Stock Portfolio Manager</p>
+          </div>
+          <button
+            className="theme-toggle"
+            onClick={() => setDarkMode(!darkMode)}
+            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {darkMode ? '☀️' : '🌙'}
+          </button>
+        </div>
       </div>
 
       {error && <div className="error">{error}</div>}
