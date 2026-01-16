@@ -7,6 +7,7 @@ import DividendForm from './components/DividendForm';
 import SellForm from './components/SellForm';
 import TransactionHistory from './components/TransactionHistory';
 import PriceUpdateButton from './components/PriceUpdateButton';
+import Settings from './components/Settings';
 
 function App() {
   const [portfolios, setPortfolios] = useState([]);
@@ -20,6 +21,7 @@ function App() {
     const saved = localStorage.getItem('investo-theme');
     return saved ? saved === 'dark' : false;
   });
+  const [showSettings, setShowSettings] = useState(false);
 
   const [newHolding, setNewHolding] = useState({
     symbol: '',
@@ -298,12 +300,28 @@ function App() {
             </>
           )}
         </div>
+
+        <div className="sidebar-footer">
+          <button
+            className="settings-btn"
+            onClick={() => {
+              setShowSettings(true);
+              setSelectedPortfolio(null);
+            }}
+          >
+            ⚙️ Settings
+          </button>
+        </div>
       </div>
 
       <div className="main-content">
         {error && <div className="error">{error}</div>}
 
-        {selectedPortfolio && portfolioDetails && (
+        {showSettings && (
+          <Settings onClose={() => setShowSettings(false)} />
+        )}
+
+        {!showSettings && selectedPortfolio && portfolioDetails && (
           <div className="portfolio-details">
             <h2>{selectedPortfolio.name}</h2>
 
@@ -391,13 +409,13 @@ function App() {
           </div>
         )}
 
-        {!selectedPortfolio && portfolios.length > 0 && (
+        {!showSettings && !selectedPortfolio && portfolios.length > 0 && (
           <div className="empty-state">
             <p>Select a portfolio to view your holdings</p>
           </div>
         )}
 
-        {!selectedPortfolio && portfolios.length === 0 && !loading && (
+        {!showSettings && !selectedPortfolio && portfolios.length === 0 && !loading && (
           <div className="empty-state">
             <p>Create your first portfolio to get started!</p>
           </div>
