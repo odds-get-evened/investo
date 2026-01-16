@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import PortfolioChart from './components/PortfolioChart';
 import HoldingsTable from './components/HoldingsTable';
 import PerformanceDashboard from './components/PerformanceDashboard';
+import PerformanceChart from './components/PerformanceChart';
 import DividendForm from './components/DividendForm';
 import SellForm from './components/SellForm';
 import TransactionHistory from './components/TransactionHistory';
+import PriceUpdateButton from './components/PriceUpdateButton';
+import Settings from './components/Settings';
 
 function App() {
   const [portfolios, setPortfolios] = useState([]);
@@ -18,6 +21,7 @@ function App() {
     const saved = localStorage.getItem('investo-theme');
     return saved ? saved === 'dark' : false;
   });
+  const [showSettings, setShowSettings] = useState(false);
 
   const [newHolding, setNewHolding] = useState({
     symbol: '',
@@ -228,14 +232,31 @@ function App() {
     }
   };
 
+  const updateMultiplePrices = async (priceUpdates) => {
+    if (!selectedPortfolio) return;
+
+    for (const update of priceUpdates) {
+      try {
+        await window.api.updatePrice(
+          selectedPortfolio.id,
+          update.symbol,
+          update.price
+        );
+      } catch (err) {
+        console.error(`Failed to update price for ${update.symbol}:`, err);
+      }
+    }
+
+    // Refresh data after all updates
+    fetchPortfolioDetails(selectedPortfolio.id);
+    fetchPortfolioPerformance(selectedPortfolio.id);
+  };
+
   return (
     <div className="app">
-      <div className="header">
-        <div className="header-content">
-          <div>
-            <h1>Investo</h1>
-            <p>Your Personal Stock Portfolio Manager</p>
-          </div>
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <h1>Investo</h1>
           <button
             className="theme-toggle"
             onClick={() => setDarkMode(!darkMode)}
@@ -244,11 +265,7 @@ function App() {
             {darkMode ? '☀️' : '🌙'}
           </button>
         </div>
-      </div>
 
-      {error && <div className="error">{error}</div>}
-
-      <div className="portfolios-container">
         <div className="portfolio-selector">
           <h2>Portfolios</h2>
           {loading && portfolios.length === 0 ? (
@@ -284,7 +301,27 @@ function App() {
           )}
         </div>
 
-        {selectedPortfolio && portfolioDetails && (
+        <div className="sidebar-footer">
+          <button
+            className="settings-btn"
+            onClick={() => {
+              setShowSettings(true);
+              setSelectedPortfolio(null);
+            }}
+          >
+            ⚙️ Settings
+          </button>
+        </div>
+      </div>
+
+      <div className="main-content">
+        {error && <div className="error">{error}</div>}
+
+        {showSettings && (
+          <Settings onClose={() => setShowSettings(false)} />
+        )}
+
+        {!showSettings && selectedPortfolio && portfolioDetails && (
           <div className="portfolio-details">
             <h2>{selectedPortfolio.name}</h2>
 
@@ -331,11 +368,22 @@ function App() {
                 {portfolioPerformance && (
                   <PerformanceDashboard performance={portfolioPerformance} />
                 )}
+
+                <PriceUpdateButton
+                  holdings={portfolioDetails.holdings}
+                  onUpdatePrices={updateMultiplePrices}
+                />
+
                 <HoldingsTable
                   holdings={portfolioDetails.holdings}
                   onDelete={deleteHolding}
                   onUpdatePrice={updatePrice}
                 />
+
+                <div className="charts-section">
+                  <PerformanceChart holdings={portfolioDetails.holdings} />
+                  <PortfolioChart holdings={portfolioDetails.holdings} />
+                </div>
 
                 <div className="transactions-section">
                   <h2>Transactions</h2>
@@ -352,8 +400,6 @@ function App() {
 
                   <TransactionHistory portfolioId={selectedPortfolio.id} />
                 </div>
-
-                <PortfolioChart holdings={portfolioDetails.holdings} />
               </>
             ) : (
               <div className="empty-state">
@@ -363,13 +409,13 @@ function App() {
           </div>
         )}
 
-        {!selectedPortfolio && portfolios.length > 0 && (
+        {!showSettings && !selectedPortfolio && portfolios.length > 0 && (
           <div className="empty-state">
             <p>Select a portfolio to view your holdings</p>
           </div>
         )}
 
-        {!selectedPortfolio && portfolios.length === 0 && !loading && (
+        {!showSettings && !selectedPortfolio && portfolios.length === 0 && !loading && (
           <div className="empty-state">
             <p>Create your first portfolio to get started!</p>
           </div>
