@@ -6,7 +6,7 @@ const COLORS = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a'
 function PortfolioChart({ holdings }) {
   const chartData = holdings.map((holding) => ({
     name: holding.symbol,
-    value: parseFloat(holding.shares) * parseFloat(holding.purchase_price)
+    value: parseFloat(holding.shares) * parseFloat(holding.current_price)
   }));
 
   const totalValue = chartData.reduce((sum, item) => sum + item.value, 0);

@@ -102,40 +102,43 @@ button {
   min-height: 100vh;
 }
 
-.header {
-  background: var(--bg-header);
-  color: var(--text-inverse);
-  padding: 24px 32px;
-  border-bottom: 3px solid var(--border-header);
-  margin-bottom: 0;
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-dark);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
-.header-content {
+.sidebar-header {
+  padding: 24px;
+  background: var(--bg-header);
+  border-bottom: 2px solid var(--border-dark);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.header h1 {
-  font-size: 2em;
-  margin-bottom: 4px;
+.sidebar-header h1 {
+  font-size: 1.6em;
   font-weight: 600;
   letter-spacing: -0.5px;
-}
-
-.header p {
-  font-size: 0.95em;
-  opacity: 0.85;
-  font-weight: 400;
+  color: var(--text-inverse);
 }
 
 .theme-toggle {
   background: var(--bg-sidebar-item);
   border: 1px solid var(--border-primary);
-  padding: 10px 16px;
-  font-size: 1.2em;
+  padding: 8px 12px;
+  font-size: 1.1em;
   transition: background 0.15s ease;
   border-radius: 0;
+  cursor: pointer;
 }
 
 .theme-toggle:hover {
@@ -143,17 +146,17 @@ button {
   border-color: var(--accent-primary);
 }
 
-.portfolios-container {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 0;
-  min-height: calc(100vh - 120px);
+.main-content {
+  margin-left: 280px;
+  min-height: 100vh;
+  padding: 32px;
+  background: var(--bg-primary);
 }
 
 .portfolio-selector {
-  background: var(--bg-sidebar);
+  flex: 1;
   padding: 24px;
-  border-right: 1px solid var(--border-dark);
+  overflow-y: auto;
 }
 
 .portfolio-selector h2 {
@@ -625,4 +628,60 @@ button {
   background: rgba(52, 152, 219, 0.15);
   color: #3498db;
   border: 1px solid #3498db;
+}
+
+.price-update-container {
+  background: var(--bg-tertiary);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-update-prices {
+  background: var(--accent-primary);
+  color: white;
+  padding: 12px 20px;
+  border: 1px solid var(--accent-primary-hover);
+  border-radius: 0;
+  cursor: pointer;
+  font-size: 0.95em;
+  font-weight: 600;
+  transition: background 0.15s ease;
+  width: fit-content;
+}
+
+.btn-update-prices:hover:not(:disabled) {
+  background: var(--accent-primary-hover);
+}
+
+.btn-update-prices:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.update-progress {
+  font-size: 0.9em;
+  color: var(--accent-primary);
+  font-weight: 500;
+  padding: 8px 12px;
+  background: rgba(52, 152, 219, 0.1);
+  border-left: 3px solid var(--accent-primary);
+}
+
+.update-warning {
+  font-size: 0.85em;
+  color: #e67e22;
+  font-weight: 500;
+  padding: 8px 12px;
+  background: rgba(230, 126, 34, 0.1);
+  border-left: 3px solid #e67e22;
+}
+
+.update-note {
+  font-size: 0.8em;
+  color: var(--text-secondary);
+  font-style: italic;
 }

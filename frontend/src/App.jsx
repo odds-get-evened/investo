@@ -5,6 +5,7 @@ import PerformanceDashboard from './components/PerformanceDashboard';
 import DividendForm from './components/DividendForm';
 import SellForm from './components/SellForm';
 import TransactionHistory from './components/TransactionHistory';
+import PriceUpdateButton from './components/PriceUpdateButton';
 
 function App() {
   const [portfolios, setPortfolios] = useState([]);
@@ -228,14 +229,31 @@ function App() {
     }
   };
 
+  const updateMultiplePrices = async (priceUpdates) => {
+    if (!selectedPortfolio) return;
+
+    for (const update of priceUpdates) {
+      try {
+        await window.api.updatePrice(
+          selectedPortfolio.id,
+          update.symbol,
+          update.price
+        );
+      } catch (err) {
+        console.error(`Failed to update price for ${update.symbol}:`, err);
+      }
+    }
+
+    // Refresh data after all updates
+    fetchPortfolioDetails(selectedPortfolio.id);
+    fetchPortfolioPerformance(selectedPortfolio.id);
+  };
+
   return (
     <div className="app">
-      <div className="header">
-        <div className="header-content">
-          <div>
-            <h1>Investo</h1>
-            <p>Your Personal Stock Portfolio Manager</p>
-          </div>
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <h1>Investo</h1>
           <button
             className="theme-toggle"
             onClick={() => setDarkMode(!darkMode)}
@@ -244,11 +262,7 @@ function App() {
             {darkMode ? '☀️' : '🌙'}
           </button>
         </div>
-      </div>
 
-      {error && <div className="error">{error}</div>}
-
-      <div className="portfolios-container">
         <div className="portfolio-selector">
           <h2>Portfolios</h2>
           {loading && portfolios.length === 0 ? (
@@ -283,6 +297,10 @@ function App() {
             </>
           )}
         </div>
+      </div>
+
+      <div className="main-content">
+        {error && <div className="error">{error}</div>}
 
         {selectedPortfolio && portfolioDetails && (
           <div className="portfolio-details">
@@ -331,6 +349,12 @@ function App() {
                 {portfolioPerformance && (
                   <PerformanceDashboard performance={portfolioPerformance} />
                 )}
+
+                <PriceUpdateButton
+                  holdings={portfolioDetails.holdings}
+                  onUpdatePrices={updateMultiplePrices}
+                />
+
                 <HoldingsTable
                   holdings={portfolioDetails.holdings}
                   onDelete={deleteHolding}
