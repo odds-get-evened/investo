@@ -221,6 +221,56 @@ function setupIPCHandlers() {
       return { success: false, error: error.message };
     }
   });
+
+  ipcMain.handle('sell-holding', async (event, portfolioId, symbol, shares, sellPrice, sellDate) => {
+    try {
+      const result = db.sellHolding(portfolioId, symbol, shares, sellPrice, sellDate);
+      return { success: true, data: result };
+    } catch (error) {
+      console.error('Error selling holding:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('add-dividend', async (event, portfolioId, symbol, amount, dividendDate) => {
+    try {
+      const result = db.addDividend(portfolioId, symbol, amount, dividendDate);
+      return { success: true, data: result };
+    } catch (error) {
+      console.error('Error adding dividend:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('get-dividends', async (event, portfolioId) => {
+    try {
+      const dividends = db.getDividends(portfolioId);
+      return { success: true, data: dividends };
+    } catch (error) {
+      console.error('Error getting dividends:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('update-price', async (event, portfolioId, symbol, currentPrice) => {
+    try {
+      db.updatePrice(portfolioId, symbol, currentPrice);
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating price:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('get-portfolio-performance', async (event, portfolioId) => {
+    try {
+      const performance = db.getPortfolioPerformance(portfolioId);
+      return { success: true, data: performance };
+    } catch (error) {
+      console.error('Error getting portfolio performance:', error);
+      return { success: false, error: error.message };
+    }
+  });
 }
 
 app.on('ready', () => {
