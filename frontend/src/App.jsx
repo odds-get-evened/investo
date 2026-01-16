@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import PortfolioChart from './components/PortfolioChart';
 import HoldingsTable from './components/HoldingsTable';
+import PerformanceDashboard from './components/PerformanceDashboard';
 
 function App() {
   const [portfolios, setPortfolios] = useState([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState(null);
   const [portfolioDetails, setPortfolioDetails] = useState(null);
+  const [portfolioPerformance, setPortfolioPerformance] = useState(null);
   const [newPortfolioName, setNewPortfolioName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -33,6 +35,7 @@ function App() {
   useEffect(() => {
     if (selectedPortfolio) {
       fetchPortfolioDetails(selectedPortfolio.id);
+      fetchPortfolioPerformance(selectedPortfolio.id);
     }
   }, [selectedPortfolio]);
 
@@ -114,6 +117,7 @@ function App() {
           purchase_date: new Date().toISOString().split('T')[0]
         });
         fetchPortfolioDetails(selectedPortfolio.id);
+        fetchPortfolioPerformance(selectedPortfolio.id);
         setError(null);
       } else {
         setError(response.error || 'Failed to add holding');
@@ -131,12 +135,46 @@ function App() {
       const response = await window.api.deleteHolding(selectedPortfolio.id, holdingId);
       if (response.success) {
         fetchPortfolioDetails(selectedPortfolio.id);
+        fetchPortfolioPerformance(selectedPortfolio.id);
         setError(null);
       } else {
         setError(response.error || 'Failed to delete holding');
       }
     } catch (err) {
       setError('Failed to delete holding');
+      console.error(err);
+    }
+  };
+
+  const updatePrice = async (symbol, currentPrice) => {
+    if (!selectedPortfolio) return;
+
+    try {
+      const response = await window.api.updatePrice(selectedPortfolio.id, symbol, currentPrice);
+      if (response.success) {
+        fetchPortfolioDetails(selectedPortfolio.id);
+        fetchPortfolioPerformance(selectedPortfolio.id);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to update price');
+      }
+    } catch (err) {
+      setError('Failed to update price');
+      console.error(err);
+    }
+  };
+
+  const fetchPortfolioPerformance = async (portfolioId) => {
+    try {
+      const response = await window.api.getPortfolioPerformance(portfolioId);
+      if (response.success) {
+        setPortfolioPerformance(response.data);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to fetch portfolio performance');
+      }
+    } catch (err) {
+      setError('Failed to fetch portfolio performance');
       console.error(err);
     }
   };
@@ -241,9 +279,13 @@ function App() {
 
             {portfolioDetails.holdings && portfolioDetails.holdings.length > 0 ? (
               <>
+                {portfolioPerformance && (
+                  <PerformanceDashboard performance={portfolioPerformance} />
+                )}
                 <HoldingsTable
                   holdings={portfolioDetails.holdings}
                   onDelete={deleteHolding}
+                  onUpdatePrice={updatePrice}
                 />
                 <PortfolioChart holdings={portfolioDetails.holdings} />
               </>
