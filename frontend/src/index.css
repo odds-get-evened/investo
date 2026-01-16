@@ -5,19 +5,17 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+  background-color: #e8ebed;
   overflow-x: hidden;
-  user-select: none; /* Prevent text selection for native desktop feel */
+  user-select: none;
   cursor: default;
 }
 
 input, textarea, button {
-  user-select: text; /* Allow text selection in inputs */
+  user-select: text;
   cursor: auto;
 }
 
@@ -34,222 +32,254 @@ button {
 .app {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 0;
+  min-height: 100vh;
 }
 
 .header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2c3e50;
   color: white;
-  padding: 30px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 24px 32px;
+  border-bottom: 3px solid #1a252f;
+  margin-bottom: 0;
 }
 
 .header h1 {
-  font-size: 2.5em;
-  margin-bottom: 10px;
+  font-size: 2em;
+  margin-bottom: 4px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
 }
 
 .header p {
-  font-size: 1.1em;
-  opacity: 0.9;
+  font-size: 0.95em;
+  opacity: 0.85;
+  font-weight: 400;
 }
 
 .portfolios-container {
   display: grid;
-  gap: 20px;
-  margin-bottom: 30px;
+  grid-template-columns: 280px 1fr;
+  gap: 0;
+  min-height: calc(100vh - 120px);
 }
 
 .portfolio-selector {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: #34495e;
+  padding: 24px;
+  border-right: 1px solid #2c3e50;
 }
 
 .portfolio-selector h2 {
-  margin-bottom: 15px;
-  color: #333;
+  margin-bottom: 16px;
+  color: #ecf0f1;
+  font-size: 1.1em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .portfolio-list {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 15px;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
 }
 
 .portfolio-btn {
-  padding: 10px 20px;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  padding: 12px 16px;
+  background: #2c3e50;
+  color: #ecf0f1;
+  border: 1px solid #1a252f;
+  border-radius: 0;
   cursor: pointer;
-  font-size: 1em;
-  transition: all 0.2s ease;
+  font-size: 0.95em;
+  transition: background 0.15s ease;
   font-weight: 500;
-  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+  text-align: left;
 }
 
 .portfolio-btn:hover {
-  background: #5568d3;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+  background: #1a252f;
+  border-color: #3498db;
 }
 
 .portfolio-btn.active {
-  background: #764ba2;
-  box-shadow: 0 3px 8px rgba(118, 75, 162, 0.4);
-  transform: translateY(-2px);
+  background: #3498db;
+  border-color: #2980b9;
+  color: white;
 }
 
 .create-portfolio {
   display: flex;
-  gap: 10px;
-  margin-top: 15px;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #2c3e50;
 }
 
 .create-portfolio input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 1em;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  padding: 10px 12px;
+  border: 1px solid #2c3e50;
+  border-radius: 0;
+  font-size: 0.95em;
+  background: #2c3e50;
+  color: #ecf0f1;
+  transition: border-color 0.15s ease;
+}
+
+.create-portfolio input::placeholder {
+  color: #95a5a6;
 }
 
 .create-portfolio input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #3498db;
+  background: #1a252f;
 }
 
 .btn {
-  padding: 10px 20px;
-  background: #667eea;
+  padding: 10px 16px;
+  background: #3498db;
   color: white;
-  border: none;
-  border-radius: 5px;
+  border: 1px solid #2980b9;
+  border-radius: 0;
   cursor: pointer;
-  font-size: 1em;
-  transition: all 0.2s ease;
+  font-size: 0.95em;
+  transition: background 0.15s ease;
   font-weight: 500;
-  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
 }
 
 .btn:hover {
-  background: #5568d3;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+  background: #2980b9;
+  border-color: #21618c;
 }
 
 .btn:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(102, 126, 234, 0.3);
+  background: #21618c;
 }
 
 .btn-danger {
-  background: #e74c3c;
-  box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
+  background: #c0392b;
+  border-color: #a93226;
 }
 
 .btn-danger:hover {
-  background: #c0392b;
-  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.4);
+  background: #a93226;
+  border-color: #922b21;
 }
 
 .portfolio-details {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  padding: 32px;
+  border-left: 1px solid #d5dbdb;
 }
 
 .portfolio-details h2 {
-  margin-bottom: 20px;
-  color: #333;
+  margin-bottom: 24px;
+  color: #2c3e50;
+  font-size: 1.5em;
+  font-weight: 600;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #3498db;
 }
 
 .add-holding-form {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(4, 1fr) auto;
+  gap: 12px;
+  margin-bottom: 24px;
   padding: 20px;
-  background: #f9f9f9;
-  border-radius: 5px;
+  background: #f8f9fa;
+  border: 1px solid #d5dbdb;
+  border-radius: 0;
 }
 
 .add-holding-form input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 1em;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  padding: 10px 12px;
+  border: 1px solid #bdc3c7;
+  border-radius: 0;
+  font-size: 0.95em;
+  background: white;
+  transition: border-color 0.15s ease;
 }
 
 .add-holding-form input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #3498db;
 }
 
 .holdings-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 24px;
+  border: 1px solid #d5dbdb;
 }
 
 .holdings-table th,
 .holdings-table td {
-  padding: 12px;
+  padding: 14px 16px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #d5dbdb;
 }
 
 .holdings-table th {
-  background: #f5f5f5;
+  background: #34495e;
   font-weight: 600;
-  color: #333;
+  color: #ecf0f1;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 0.5px;
 }
 
 .holdings-table tr:hover {
-  background: #f9f9f9;
+  background: #f8f9fa;
+}
+
+.holdings-table tr:last-child td {
+  border-bottom: none;
 }
 
 .chart-container {
   background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
+  padding: 24px;
+  border: 1px solid #d5dbdb;
+  margin-top: 24px;
 }
 
 .chart-container h3 {
-  margin-bottom: 15px;
-  color: #333;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  font-size: 1.2em;
+  font-weight: 600;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #d5dbdb;
 }
 
 .empty-state {
   text-align: center;
-  padding: 40px;
-  color: #666;
+  padding: 60px 40px;
+  color: #7f8c8d;
+  background: #f8f9fa;
+  border: 1px solid #d5dbdb;
+  margin: 20px 0;
 }
 
 .loading {
   text-align: center;
-  padding: 40px;
-  color: #667eea;
-  font-size: 1.2em;
+  padding: 60px 40px;
+  color: #3498db;
+  font-size: 1.1em;
+  background: #f8f9fa;
+  border: 1px solid #d5dbdb;
 }
 
 .error {
-  background: #fee;
-  color: #c33;
-  padding: 15px;
-  border-radius: 5px;
+  background: #fadbd8;
+  color: #922b21;
+  padding: 14px 16px;
+  border-left: 3px solid #c0392b;
   margin-bottom: 20px;
+  font-weight: 500;
 }
