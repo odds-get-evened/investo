@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import PortfolioChart from './components/PortfolioChart';
 import HoldingsTable from './components/HoldingsTable';
 import PerformanceDashboard from './components/PerformanceDashboard';
+import DividendForm from './components/DividendForm';
+import SellForm from './components/SellForm';
+import TransactionHistory from './components/TransactionHistory';
 
 function App() {
   const [portfolios, setPortfolios] = useState([]);
@@ -179,6 +182,52 @@ function App() {
     }
   };
 
+  const addDividend = async (symbol, amount, dividendDate) => {
+    if (!selectedPortfolio) return;
+
+    try {
+      const response = await window.api.addDividend(
+        selectedPortfolio.id,
+        symbol,
+        amount,
+        dividendDate
+      );
+      if (response.success) {
+        fetchPortfolioPerformance(selectedPortfolio.id);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to add dividend');
+      }
+    } catch (err) {
+      setError('Failed to add dividend');
+      console.error(err);
+    }
+  };
+
+  const sellShares = async (symbol, shares, sellPrice, sellDate) => {
+    if (!selectedPortfolio) return;
+
+    try {
+      const response = await window.api.sellHolding(
+        selectedPortfolio.id,
+        symbol,
+        shares,
+        sellPrice,
+        sellDate
+      );
+      if (response.success) {
+        fetchPortfolioDetails(selectedPortfolio.id);
+        fetchPortfolioPerformance(selectedPortfolio.id);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to sell shares');
+      }
+    } catch (err) {
+      setError('Failed to sell shares');
+      console.error(err);
+    }
+  };
+
   return (
     <div className="app">
       <div className="header">
@@ -287,6 +336,23 @@ function App() {
                   onDelete={deleteHolding}
                   onUpdatePrice={updatePrice}
                 />
+
+                <div className="transactions-section">
+                  <h2>Transactions</h2>
+                  <div className="transaction-forms">
+                    <DividendForm
+                      holdings={portfolioDetails.holdings}
+                      onAddDividend={addDividend}
+                    />
+                    <SellForm
+                      holdings={portfolioDetails.holdings}
+                      onSell={sellShares}
+                    />
+                  </div>
+
+                  <TransactionHistory portfolioId={selectedPortfolio.id} />
+                </div>
+
                 <PortfolioChart holdings={portfolioDetails.holdings} />
               </>
             ) : (
