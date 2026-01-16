@@ -115,10 +115,10 @@ function createMenu() {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    minWidth: 800,
-    minHeight: 600,
+    width: 800,
+    height: 600,
+    minWidth: 600,
+    minHeight: 400,
     title: 'Investo - Stock Portfolio Manager',
     backgroundColor: '#f5f5f5',
     webPreferences: {
@@ -129,8 +129,8 @@ function createWindow() {
     icon: path.join(__dirname, 'public', 'icon.png')
   });
 
-  // Create application menu
-  createMenu();
+  // Remove the application menu
+  Menu.setApplicationMenu(null);
 
   // In development, load from Vite dev server
   // In production, load from built files
