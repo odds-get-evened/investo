@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PortfolioChart from './components/PortfolioChart';
 import HoldingsTable from './components/HoldingsTable';
 import PerformanceDashboard from './components/PerformanceDashboard';
+import PerformanceChart from './components/PerformanceChart';
 import DividendForm from './components/DividendForm';
 import SellForm from './components/SellForm';
 import TransactionHistory from './components/TransactionHistory';
@@ -361,6 +362,11 @@ function App() {
                   onUpdatePrice={updatePrice}
                 />
 
+                <div className="charts-section">
+                  <PerformanceChart holdings={portfolioDetails.holdings} />
+                  <PortfolioChart holdings={portfolioDetails.holdings} />
+                </div>
+
                 <div className="transactions-section">
                   <h2>Transactions</h2>
                   <div className="transaction-forms">
@@ -376,8 +382,6 @@ function App() {
 
                   <TransactionHistory portfolioId={selectedPortfolio.id} />
                 </div>
-
-                <PortfolioChart holdings={portfolioDetails.holdings} />
               </>
             ) : (
               <div className="empty-state">
