@@ -1,0 +1,300 @@
+/**
+ * Compact CSS Theme for Investo
+ * 
+ * This file provides condensed spacing, smaller typography, and compact component styles
+ * to improve UI density and create a more condensed user experience.
+ * 
+ * HOW TO ENABLE:
+ * Option 1: Add the "compact-root" class to your root element (e.g., <div id="root" class="compact-root">)
+ * Option 2: Import this file in your main entry point and styles will be available for opt-in usage
+ * Option 3: Apply "compact-*" classes to individual components as needed
+ * 
+ * This is an opt-in stylesheet - importing it does not automatically change your UI.
+ * You must apply the classes to enable the compact styling.
+ */
+
+/* ============================================
+   COMPACT ROOT STYLES
+   Apply .compact-root to enable global compact mode
+   ============================================ */
+
+.compact-root {
+  /* Reduced spacing scale */
+  --compact-space-xs: 4px;
+  --compact-space-sm: 8px;
+  --compact-space-md: 12px;
+  --compact-space-lg: 16px;
+  --compact-space-xl: 24px;
+
+  /* Smaller typography scale */
+  --compact-font-xs: 11px;
+  --compact-font-sm: 12px;
+  --compact-font-base: 13px;
+  --compact-font-md: 14px;
+  --compact-font-lg: 16px;
+  --compact-font-xl: 18px;
+
+  /* Compact line heights */
+  --compact-line-height-tight: 1.25;
+  --compact-line-height-normal: 1.4;
+  --compact-line-height-relaxed: 1.5;
+
+  /* Compact component sizes */
+  --compact-input-height: 32px;
+  --compact-button-height: 32px;
+  --compact-icon-size: 18px;
+}
+
+/* Global compact adjustments when compact-root is applied */
+.compact-root {
+  font-size: var(--compact-font-base);
+  line-height: var(--compact-line-height-normal);
+}
+
+.compact-root h1 {
+  font-size: var(--compact-font-xl);
+  margin-bottom: var(--compact-space-md);
+}
+
+.compact-root h2 {
+  font-size: var(--compact-font-lg);
+  margin-bottom: var(--compact-space-sm);
+}
+
+.compact-root h3 {
+  font-size: var(--compact-font-md);
+  margin-bottom: var(--compact-space-sm);
+}
+
+.compact-root p {
+  margin-bottom: var(--compact-space-sm);
+}
+
+/* ============================================
+   COMPACT CARD COMPONENT
+   ============================================ */
+
+.compact-card {
+  background: var(--bg-secondary, #ffffff);
+  border: 1px solid var(--border-primary, #d5dbdb);
+  border-radius: 6px;
+  padding: var(--compact-space-md, 12px);
+  margin-bottom: var(--compact-space-md, 12px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.compact-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--compact-space-sm, 8px);
+  padding-bottom: var(--compact-space-sm, 8px);
+  border-bottom: 1px solid var(--border-primary, #d5dbdb);
+}
+
+.compact-card .card-title {
+  font-size: var(--compact-font-md, 14px);
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary, #2c3e50);
+}
+
+.compact-card .card-actions {
+  display: flex;
+  gap: var(--compact-space-xs, 4px);
+}
+
+.compact-card .card-content {
+  font-size: var(--compact-font-sm, 12px);
+  line-height: var(--compact-line-height-normal, 1.4);
+}
+
+/* ============================================
+   COMPACT BUTTONS
+   ============================================ */
+
+.compact-button,
+.compact-root button,
+.compact-root .btn {
+  height: var(--compact-button-height, 32px);
+  padding: var(--compact-space-xs, 4px) var(--compact-space-md, 12px);
+  font-size: var(--compact-font-sm, 12px);
+  line-height: var(--compact-line-height-tight, 1.25);
+  border-radius: 4px;
+  min-width: auto;
+}
+
+.compact-button-small {
+  height: 28px;
+  padding: var(--compact-space-xs, 4px) var(--compact-space-sm, 8px);
+  font-size: var(--compact-font-xs, 11px);
+}
+
+/* ============================================
+   COMPACT INPUTS & FORMS
+   ============================================ */
+
+.compact-input,
+.compact-root input[type="text"],
+.compact-root input[type="number"],
+.compact-root input[type="email"],
+.compact-root input[type="password"],
+.compact-root input[type="date"],
+.compact-root select,
+.compact-root textarea {
+  height: var(--compact-input-height, 32px);
+  padding: var(--compact-space-xs, 4px) var(--compact-space-sm, 8px);
+  font-size: var(--compact-font-sm, 12px);
+  line-height: var(--compact-line-height-normal, 1.4);
+  border-radius: 4px;
+}
+
+.compact-root textarea {
+  height: auto;
+  min-height: 60px;
+  padding: var(--compact-space-sm, 8px);
+}
+
+.compact-root label {
+  font-size: var(--compact-font-sm, 12px);
+  margin-bottom: var(--compact-space-xs, 4px);
+}
+
+/* ============================================
+   COMPACT TABLES
+   ============================================ */
+
+.compact-table,
+.compact-root table {
+  font-size: var(--compact-font-sm, 12px);
+}
+
+.compact-table th,
+.compact-root table th {
+  padding: var(--compact-space-xs, 4px) var(--compact-space-sm, 8px);
+  font-size: var(--compact-font-sm, 12px);
+  font-weight: 600;
+  line-height: var(--compact-line-height-tight, 1.25);
+}
+
+.compact-table td,
+.compact-root table td {
+  padding: var(--compact-space-xs, 4px) var(--compact-space-sm, 8px);
+  line-height: var(--compact-line-height-tight, 1.25);
+}
+
+/* ============================================
+   COMPACT LIST ITEMS
+   ============================================ */
+
+.compact-list-item,
+.compact-root li {
+  padding: var(--compact-space-xs, 4px) var(--compact-space-sm, 8px);
+  font-size: var(--compact-font-sm, 12px);
+  line-height: var(--compact-line-height-normal, 1.4);
+}
+
+/* ============================================
+   COMPACT ICON BUTTONS
+   ============================================ */
+
+.compact-icon-button {
+  width: var(--compact-button-height, 32px);
+  height: var(--compact-button-height, 32px);
+  padding: var(--compact-space-xs, 4px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: 1px solid var(--border-primary, #d5dbdb);
+  background: var(--bg-secondary, #ffffff);
+  cursor: pointer;
+}
+
+.compact-icon-button:hover {
+  background: var(--bg-tertiary, #f8f9fa);
+}
+
+.compact-icon-button svg,
+.compact-icon-button img {
+  width: var(--compact-icon-size, 18px);
+  height: var(--compact-icon-size, 18px);
+}
+
+/* ============================================
+   COMPACT SPACING UTILITIES
+   ============================================ */
+
+.compact-mt-xs { margin-top: var(--compact-space-xs, 4px); }
+.compact-mt-sm { margin-top: var(--compact-space-sm, 8px); }
+.compact-mt-md { margin-top: var(--compact-space-md, 12px); }
+.compact-mt-lg { margin-top: var(--compact-space-lg, 16px); }
+
+.compact-mb-xs { margin-bottom: var(--compact-space-xs, 4px); }
+.compact-mb-sm { margin-bottom: var(--compact-space-sm, 8px); }
+.compact-mb-md { margin-bottom: var(--compact-space-md, 12px); }
+.compact-mb-lg { margin-bottom: var(--compact-space-lg, 16px); }
+
+.compact-p-xs { padding: var(--compact-space-xs, 4px); }
+.compact-p-sm { padding: var(--compact-space-sm, 8px); }
+.compact-p-md { padding: var(--compact-space-md, 12px); }
+.compact-p-lg { padding: var(--compact-space-lg, 16px); }
+
+.compact-gap-xs { gap: var(--compact-space-xs, 4px); }
+.compact-gap-sm { gap: var(--compact-space-sm, 8px); }
+.compact-gap-md { gap: var(--compact-space-md, 12px); }
+
+/* ============================================
+   RESPONSIVE TWEAKS
+   ============================================ */
+
+/* For smaller screens, make compact mode even more condensed */
+@media (max-width: 768px) {
+  .compact-root {
+    --compact-space-xs: 3px;
+    --compact-space-sm: 6px;
+    --compact-space-md: 10px;
+    --compact-space-lg: 14px;
+    --compact-font-xs: 10px;
+    --compact-font-sm: 11px;
+    --compact-font-base: 12px;
+    --compact-input-height: 30px;
+    --compact-button-height: 30px;
+  }
+
+  .compact-card {
+    padding: var(--compact-space-sm, 6px);
+  }
+}
+
+/* For larger screens, allow slightly more breathing room */
+@media (min-width: 1440px) {
+  .compact-root {
+    --compact-space-md: 14px;
+    --compact-space-lg: 18px;
+    --compact-space-xl: 28px;
+  }
+}
+
+/* ============================================
+   DARK MODE SUPPORT
+   Respects existing dark mode variables
+   ============================================ */
+
+:root[data-theme="dark"] .compact-card {
+  background: var(--bg-secondary, #2a2a2a);
+  border-color: var(--border-primary, #404040);
+}
+
+:root[data-theme="dark"] .compact-card .card-title {
+  color: var(--text-primary, #e0e0e0);
+}
+
+:root[data-theme="dark"] .compact-icon-button {
+  background: var(--bg-secondary, #2a2a2a);
+  border-color: var(--border-primary, #404040);
+}
+
+:root[data-theme="dark"] .compact-icon-button:hover {
+  background: var(--bg-tertiary, #333333);
+}
