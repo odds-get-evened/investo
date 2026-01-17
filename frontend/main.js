@@ -7,6 +7,8 @@ let mainWindow;
 
 // Fetch metadata from Yahoo Finance (sector & industry as asset_class)
 // Best-effort with timeout - failures are logged but don't block operations
+// Note: Node.js https module uses agent with connection pooling by default
+// For production use, consider adding a rate limiter or server-side cache
 async function fetchSymbolMetadata(symbol) {
   return new Promise((resolve) => {
     const timeout = setTimeout(() => {

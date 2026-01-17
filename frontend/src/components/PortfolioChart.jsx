@@ -120,12 +120,16 @@ function PortfolioChart({ holdings = [] }) {
       // Aggregate by sector if metadata exists
       if (h.sector && value > 0) {
         bySector[h.sector] = (bySector[h.sector] || 0) + value;
-        metadataCount++;
       }
 
       // Aggregate by asset_class if metadata exists
       if (h.asset_class && value > 0) {
         byAssetClass[h.asset_class] = (byAssetClass[h.asset_class] || 0) + value;
+      }
+
+      // Count holdings with any metadata
+      if ((h.sector || h.asset_class) && value > 0) {
+        metadataCount++;
       }
     });
 
