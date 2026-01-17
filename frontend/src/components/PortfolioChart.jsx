@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Component } from 'react';
 import {
   PieChart,
   Pie,
@@ -19,7 +19,7 @@ import {
 const COLORS = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#fbc531', '#e056fd', '#00d2ff'];
 
 // ErrorBoundary component to catch rendering errors in charts
-class ErrorBoundary extends React.Component {
+class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false };
@@ -238,7 +238,7 @@ function PortfolioChart({ holdings }) {
   // Custom content renderer for treemap cells - returns null for invalid dimensions
   const TreemapContent = ({ x, y, width, height, name, size }) => {
     // Return null for zero/invalid dimensions to prevent rendering errors
-    if (!width || !height || width <= 0 || height <= 0) {
+    if (width <= 0 || height <= 0) {
       return null;
     }
     
