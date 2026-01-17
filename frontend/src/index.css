@@ -131,6 +131,40 @@ button {
   color: var(--text-inverse);
 }
 
+/* Sidebar navigation buttons for view switching */
+.sidebar-nav {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-dark);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-btn {
+  padding: 8px 12px;
+  background: var(--bg-sidebar-item);
+  color: var(--text-sidebar);
+  border: 1px solid var(--border-dark);
+  border-radius: 0;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background 0.15s ease;
+  font-weight: 500;
+  text-align: left;
+}
+
+.nav-btn:hover {
+  background: var(--bg-sidebar-item-hover);
+  border-color: var(--accent-primary);
+}
+
+.nav-btn.active {
+  background: var(--bg-sidebar-item-active);
+  border-color: var(--accent-primary-hover);
+  color: white;
+  font-weight: 600;
+}
+
 .theme-toggle {
   background: var(--bg-sidebar-item);
   border: 1px solid var(--border-primary);
@@ -263,6 +297,28 @@ button {
   background: var(--bg-secondary);
   padding: 32px;
   border-left: 1px solid var(--border-primary);
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--accent-primary);
+}
+
+.details-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+.details-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .portfolio-details h2 {
@@ -1025,6 +1081,16 @@ button {
   padding: 10px 12px;
 }
 
+/* Compact mode: sidebar navigation */
+.compact-mode .sidebar-nav {
+  padding: 6px 12px;
+}
+
+.compact-mode .nav-btn {
+  padding: 6px 10px;
+  font-size: 0.8em;
+}
+
 .compact-mode .portfolio-selector h2 {
   font-size: 0.8em;
   margin-bottom: 8px;
@@ -1274,5 +1340,98 @@ button {
 .compact-mode .tab-content {
   padding: 12px 0;
   min-height: 100px;
+}
+
+/* ===================================================================
+   RESPONSIVE HOLDINGS TABLE - Card Layout for Mobile
+   On screens <900px the table collapses into stacked cards
+   =================================================================== */
+
+/* Hide table headers on small screens */
+@media (max-width: 900px) {
+  .holdings-table thead {
+    display: none;
+  }
+
+  .holdings-table,
+  .holdings-table tbody,
+  .holdings-table tr,
+  .holdings-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .holdings-table tr {
+    margin-bottom: 16px;
+    border: 1px solid var(--border-primary);
+    background: var(--bg-secondary);
+    padding: 12px;
+  }
+
+  .holdings-table td {
+    text-align: right;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-primary);
+    position: relative;
+    padding-left: 50%;
+  }
+
+  .holdings-table td:last-child {
+    border-bottom: none;
+  }
+
+  /* Add labels using data-label attribute */
+  .holdings-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 45%;
+    padding-left: 10px;
+    font-weight: 600;
+    text-align: left;
+    color: var(--text-secondary);
+  }
+
+  .holdings-table .price-update {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .holdings-table .action-buttons {
+    flex-direction: column;
+  }
+
+  /* Compact mode adjustments for responsive cards */
+  .compact-mode .holdings-table tr {
+    margin-bottom: 12px;
+    padding: 8px;
+  }
+
+  .compact-mode .holdings-table td {
+    padding: 6px 0;
+    font-size: 0.85em;
+  }
+}
+
+/* ===================================================================
+   ACCESSIBILITY - Focus Outlines for Keyboard Navigation
+   =================================================================== */
+
+/* Focus styles for interactive elements */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+.portfolio-btn:focus-visible,
+.nav-btn:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Additional focus styles for compact mode */
+.compact-mode button:focus-visible,
+.compact-mode input:focus-visible,
+.compact-mode select:focus-visible {
+  outline-width: 2px;
+  outline-offset: 1px;
 }
 
