@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   PieChart,
   Pie,
@@ -72,7 +72,7 @@ function PortfolioChart({ holdings }) {
 
   // Prepare data for Treemap
   const getTreemapData = () => {
-    return holdings.map((holding) => {
+    return holdings.map((holding, index) => {
       const shares = safeParseFloat(holding.shares);
       const currentPrice = safeParseFloat(holding.current_price);
       const value = shares * currentPrice;
@@ -80,7 +80,8 @@ function PortfolioChart({ holdings }) {
       return {
         name: holding.symbol,
         size: value,
-        shares: shares.toFixed(2)
+        shares: shares.toFixed(2),
+        index: index
       };
     }).filter(item => item.size > 0); // Filter out zero-value positions
   };
@@ -168,7 +169,7 @@ function PortfolioChart({ holdings }) {
 
   // Custom content renderer for Treemap cells
   const TreemapContent = (props) => {
-    const { x, y, width, height, name, shares } = props;
+    const { x, y, width, height, name, shares, index } = props;
     
     return (
       <g>
@@ -178,7 +179,7 @@ function PortfolioChart({ holdings }) {
           width={width}
           height={height}
           style={{
-            fill: COLORS[Math.floor(Math.random() * COLORS.length)],
+            fill: COLORS[index % COLORS.length],
             stroke: '#fff',
             strokeWidth: 2
           }}
@@ -228,10 +229,12 @@ function PortfolioChart({ holdings }) {
     return null;
   };
 
-  // Initialize selected symbol if not set
-  if (activeTab === 'candlestick' && !selectedSymbol && holdings.length > 0) {
-    setSelectedSymbol(holdings[0].symbol);
-  }
+  // Initialize selected symbol when switching to candlestick tab
+  useEffect(() => {
+    if (activeTab === 'candlestick' && !selectedSymbol && holdings.length > 0) {
+      setSelectedSymbol(holdings[0].symbol);
+    }
+  }, [activeTab, selectedSymbol, holdings]);
 
   const pieData = getPieData();
   const treemapData = getTreemapData();
@@ -342,7 +345,7 @@ function PortfolioChart({ holdings }) {
               style={{ minWidth: '150px' }}
             >
               {holdings.map((holding) => (
-                <option key={holding.symbol} value={holding.symbol}>
+                <option key={holding.id} value={holding.symbol}>
                   {holding.symbol}
                 </option>
               ))}
