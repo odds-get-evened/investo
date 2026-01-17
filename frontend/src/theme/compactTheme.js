@@ -192,7 +192,7 @@ export const compactThemeOptions = {
           },
           '& .MuiInputBase-input': {
             padding: compactComponents.textField.medium.padding,
-            height: compactComponents.textField.medium.height,
+            minHeight: compactComponents.textField.medium.height,
           },
         },
       },
@@ -278,7 +278,7 @@ export const compactThemeOptions = {
           padding: compactSpacing.xs,
         },
         sizeSmall: {
-          padding: compactSpacing.xs / 2,
+          padding: Math.floor(compactSpacing.xs / 2),
           '& svg': {
             fontSize: compactComponents.iconButton.small.iconSize,
           },
