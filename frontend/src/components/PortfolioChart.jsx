@@ -36,9 +36,13 @@ class ErrorBoundary extends React.Component {
     this.state = { hasError: false, error: null };
   }
 
+  // Required for proper error boundary behavior
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
   // Capture render errors from child components
   componentDidCatch(error, info) {
-    this.setState({ hasError: true, error });
     console.error('ErrorBoundary caught:', error, info);
   }
 
@@ -197,12 +201,18 @@ function PortfolioChart({ holdings = [] }) {
     const days = 30;
     const result = [];
     let prevClose = center;
+    // Constants for realistic synthetic price movements
+    const WAVE_FREQUENCY = 0.5; // Controls the period of the sinusoidal trend
+    const TREND_AMPLITUDE = 0.01; // 1% trend variation
+    const RANDOM_VOLATILITY = 0.02; // 2% random daily volatility
+    const HIGH_LOW_SPREAD = 0.02; // 2% intraday high/low spread
+    
     for (let i = days - 1; i >= 0; i--) {
-      const variation = (Math.sin(i * 0.5) * 0.01 + (Math.random() * 0.02 - 0.01)) * center;
+      const variation = (Math.sin(i * WAVE_FREQUENCY) * TREND_AMPLITUDE + (Math.random() * RANDOM_VOLATILITY - RANDOM_VOLATILITY / 2)) * center;
       const open = prevClose;
       const close = Math.max(0.01, open + variation);
-      const high = Math.max(open, close) + Math.random() * center * 0.02;
-      const low = Math.min(open, close) - Math.random() * center * 0.02;
+      const high = Math.max(open, close) + Math.random() * center * HIGH_LOW_SPREAD;
+      const low = Math.min(open, close) - Math.random() * center * HIGH_LOW_SPREAD;
       const date = new Date();
       date.setDate(date.getDate() - i);
       result.push({ date: date.toISOString().split('T')[0], open, high, low, close });
@@ -221,14 +231,15 @@ function PortfolioChart({ holdings = [] }) {
   // Visual approximation of a candlestick using pixel coords provided by Recharts' Scatter
   const CandleShape = ({ cx, cy, payload }) => {
     if (typeof cx !== 'number' || typeof cy !== 'number') return null; // safety check
-    const width = 10;
+    const CANDLE_WIDTH = 10; // Width of candlestick body in pixels
+    const PRICE_SCALE = 2; // Visual scaling factor to convert price differences to pixel heights
     const { open, close, high, low } = payload;
     const up = close >= open;
     const fill = up ? '#26a69a' : '#ef5350';
     return (
       <g>
-        <line x1={cx} x2={cx} y1={cy - Math.abs(high - close) * 2} y2={cy + Math.abs(close - low) * 2} stroke={fill} strokeWidth={1} />
-        <rect x={cx - width / 2} y={cy - Math.abs(close - open) * 2} width={width} height={Math.max(2, Math.abs(close - open) * 4)} fill={fill} stroke="#222" />
+        <line x1={cx} x2={cx} y1={cy - Math.abs(high - close) * PRICE_SCALE} y2={cy + Math.abs(close - low) * PRICE_SCALE} stroke={fill} strokeWidth={1} />
+        <rect x={cx - CANDLE_WIDTH / 2} y={cy - Math.abs(close - open) * PRICE_SCALE} width={CANDLE_WIDTH} height={Math.max(2, Math.abs(close - open) * (PRICE_SCALE * 2))} fill={fill} stroke="#222" />
       </g>
     );
   };
