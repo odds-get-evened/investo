@@ -1,0 +1,354 @@
+/* Compact UI Theme - Reduces spacing, margins, and typography for denser interface */
+
+/* Compact spacing variables - reducing default paddings/margins by ~30-40% */
+:root {
+  --compact-spacing-xs: 4px;
+  --compact-spacing-sm: 6px;
+  --compact-spacing-md: 8px;
+  --compact-spacing-lg: 12px;
+  --compact-spacing-xl: 16px;
+  
+  --compact-font-xs: 0.7em;
+  --compact-font-sm: 0.75em;
+  --compact-font-base: 0.85em;
+  --compact-font-lg: 0.95em;
+  --compact-font-xl: 1.1em;
+}
+
+/* Compact body and root - smaller base font size */
+body.compact-mode {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Compact sidebar - reduced width and padding */
+.sidebar {
+  width: 180px;
+}
+
+.sidebar-header {
+  padding: 10px 12px;
+}
+
+.sidebar-header h1 {
+  font-size: 1.1em;
+}
+
+.portfolio-selector {
+  padding: 10px 12px;
+}
+
+.portfolio-selector h2 {
+  font-size: var(--compact-font-xs);
+  margin-bottom: 6px;
+}
+
+.portfolio-list {
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.portfolio-btn {
+  padding: 6px 10px;
+  font-size: var(--compact-font-sm);
+}
+
+.create-portfolio {
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.create-portfolio input {
+  padding: 5px 8px;
+  font-size: var(--compact-font-sm);
+}
+
+/* Compact main content - reduced padding */
+.main-content {
+  margin-left: 180px;
+  padding: 12px;
+}
+
+/* Compact portfolio details - tighter spacing */
+.portfolio-details {
+  padding: 16px;
+}
+
+.portfolio-details h2 {
+  font-size: 1em;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+}
+
+/* Compact add holding form - smaller inputs and buttons */
+.add-holding-form {
+  gap: 6px;
+  padding: 8px;
+  margin-bottom: 12px;
+}
+
+.add-holding-form input {
+  padding: 5px 8px;
+  font-size: var(--compact-font-sm);
+}
+
+/* Compact buttons - smaller padding */
+.btn {
+  padding: 5px 10px;
+  font-size: var(--compact-font-sm);
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: var(--compact-font-xs);
+}
+
+.theme-toggle {
+  padding: 4px 8px;
+  font-size: 0.9em;
+}
+
+/* Compact tables - reduced cell padding and font size */
+.holdings-table th,
+.holdings-table td {
+  padding: 6px 8px;
+  font-size: var(--compact-font-sm);
+}
+
+.holdings-table th {
+  font-size: var(--compact-font-xs);
+}
+
+.transaction-table th,
+.transaction-table td {
+  padding: 8px 12px;
+  font-size: var(--compact-font-sm);
+}
+
+.transaction-table th {
+  font-size: var(--compact-font-xs);
+}
+
+/* Compact cards - reduced padding and smaller text */
+.metric-card {
+  padding: 8px;
+}
+
+.metric-card h3 {
+  font-size: var(--compact-font-xs);
+  margin-bottom: 4px;
+}
+
+.metric-card .value {
+  font-size: 1em;
+  margin-bottom: 2px;
+}
+
+.metric-card .subtitle {
+  font-size: var(--compact-font-xs);
+  margin-top: 2px;
+}
+
+/* Compact performance grid - tighter spacing */
+.performance-grid {
+  gap: 8px;
+  margin-bottom: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+/* Compact chart containers */
+.chart-container,
+.performance-chart-container {
+  padding: 10px;
+  margin-top: 12px;
+}
+
+.chart-container h3,
+.performance-chart-container h3 {
+  margin-bottom: 8px;
+  font-size: var(--compact-font-base);
+}
+
+/* Compact charts section */
+.charts-section {
+  gap: 12px;
+  margin: 12px 0;
+}
+
+/* Compact transaction section */
+.transactions-section {
+  margin-top: 16px;
+  padding-top: 12px;
+}
+
+.transactions-section h2 {
+  margin-bottom: 8px;
+  font-size: var(--compact-font-lg);
+}
+
+.transaction-forms {
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.transaction-form {
+  padding: 10px;
+}
+
+.transaction-form h3 {
+  margin-bottom: 8px;
+  font-size: var(--compact-font-sm);
+}
+
+.form-grid {
+  gap: 6px;
+}
+
+.form-select,
+.form-input {
+  padding: 5px 8px;
+  font-size: var(--compact-font-sm);
+}
+
+/* Compact price update container */
+.price-update-container {
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  gap: 8px;
+}
+
+.btn-update-prices {
+  padding: 8px 14px;
+  font-size: var(--compact-font-base);
+}
+
+.update-progress,
+.update-warning {
+  font-size: var(--compact-font-sm);
+  padding: 6px 10px;
+}
+
+.update-note {
+  font-size: var(--compact-font-xs);
+}
+
+/* Compact empty state and error */
+.empty-state {
+  padding: 24px 20px;
+}
+
+.error {
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+/* Compact settings */
+.settings-header {
+  padding: 16px 24px;
+}
+
+.settings-header h2 {
+  font-size: 1.2em;
+}
+
+.settings-content {
+  padding: 20px;
+}
+
+.settings-section {
+  margin-bottom: 24px;
+}
+
+.settings-section h3 {
+  font-size: 0.95em;
+  margin-bottom: 10px;
+}
+
+.settings-description {
+  font-size: var(--compact-font-sm);
+  margin-bottom: 14px;
+}
+
+.settings-field {
+  margin-bottom: 14px;
+}
+
+.settings-input {
+  padding: 8px 10px;
+  font-size: var(--compact-font-base);
+}
+
+.settings-footer {
+  padding: 16px 24px;
+}
+
+.btn-primary {
+  padding: 8px 16px;
+}
+
+.sidebar-footer {
+  padding: 8px 12px;
+}
+
+.settings-btn {
+  padding: 6px 10px;
+  font-size: var(--compact-font-sm);
+}
+
+/* Compact card component class - for use in CompactCard component */
+.compact-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.compact-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.compact-card .card-title {
+  font-size: var(--compact-font-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.compact-card .card-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.compact-card .card-content {
+  font-size: var(--compact-font-sm);
+  color: var(--text-primary);
+}
+
+/* Responsive adjustments for compact mode */
+@media (max-width: 1200px) {
+  .charts-section {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 900px) {
+  .main-content {
+    margin-left: 0;
+    padding: 10px;
+  }
+  
+  .sidebar {
+    width: 160px;
+  }
+  
+  .transaction-forms {
+    gap: 8px;
+  }
+}
