@@ -348,12 +348,12 @@ function updateHoldingMetadata(portfolioId, symbol, sector, assetClass) {
   const updates = [];
   const params = [];
   
-  if (sector !== null && sector !== undefined) {
+  if (sector != null && sector !== '') {
     updates.push('sector = ?');
     params.push(sector);
   }
   
-  if (assetClass !== null && assetClass !== undefined) {
+  if (assetClass != null && assetClass !== '') {
     updates.push('asset_class = ?');
     params.push(assetClass);
   }

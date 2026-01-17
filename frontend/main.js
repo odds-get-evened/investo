@@ -11,6 +11,13 @@ let mainWindow;
 // For production use, consider adding a rate limiter or server-side cache
 async function fetchSymbolMetadata(symbol) {
   return new Promise((resolve) => {
+    // Validate symbol format (alphanumeric, dots, hyphens only)
+    if (!symbol || !/^[A-Za-z0-9.\-]+$/.test(symbol)) {
+      console.log(`Invalid symbol format: ${symbol}`);
+      resolve(null);
+      return;
+    }
+
     const timeout = setTimeout(() => {
       console.log(`Metadata fetch timeout for ${symbol}`);
       resolve(null);
@@ -18,7 +25,7 @@ async function fetchSymbolMetadata(symbol) {
 
     const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=assetProfile`;
     
-    https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (res) => {
+    https.get(url, { headers: { 'User-Agent': 'Investo/1.0 (Electron Portfolio Manager)' } }, (res) => {
       let data = '';
       
       res.on('data', (chunk) => {
