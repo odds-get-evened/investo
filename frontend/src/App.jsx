@@ -21,6 +21,15 @@ function App() {
     const saved = localStorage.getItem('investo-theme');
     return saved ? saved === 'dark' : false;
   });
+  // Compact mode state - persisted to localStorage for density control
+  const [compactMode, setCompactMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem('investo-compact-mode');
+      return saved === 'true';
+    } catch {
+      return false; // Defensive: fallback to false if localStorage fails
+    }
+  });
   const [showSettings, setShowSettings] = useState(false);
 
   const [newHolding, setNewHolding] = useState({
@@ -34,10 +43,25 @@ function App() {
     fetchPortfolios();
   }, []);
 
+  // Apply theme changes to document root
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
     localStorage.setItem('investo-theme', darkMode ? 'dark' : 'light');
   }, [darkMode]);
+
+  // Apply compact mode class and persist to localStorage
+  useEffect(() => {
+    try {
+      if (compactMode) {
+        document.documentElement.classList.add('compact-mode');
+      } else {
+        document.documentElement.classList.remove('compact-mode');
+      }
+      localStorage.setItem('investo-compact-mode', compactMode.toString());
+    } catch (err) {
+      console.error('Failed to apply compact mode:', err);
+    }
+  }, [compactMode]);
 
   useEffect(() => {
     if (selectedPortfolio) {
@@ -257,13 +281,24 @@ function App() {
       <div className="sidebar">
         <div className="sidebar-header">
           <h1>Investo</h1>
-          <button
-            className="theme-toggle"
-            onClick={() => setDarkMode(!darkMode)}
-            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {darkMode ? '☀️' : '🌙'}
-          </button>
+          <div className="header-controls">
+            {/* Compact mode toggle - collapses spacing and reduces font sizes */}
+            <button
+              className="compact-toggle"
+              onClick={() => setCompactMode(!compactMode)}
+              title={compactMode ? 'Disable Compact Mode' : 'Enable Compact Mode'}
+            >
+              {compactMode ? '🔼' : '🔽'}
+            </button>
+            {/* Theme toggle - switches between dark/light themes */}
+            <button
+              className="theme-toggle"
+              onClick={() => setDarkMode(!darkMode)}
+              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {darkMode ? '☀️' : '🌙'}
+            </button>
+          </div>
         </div>
 
         <div className="portfolio-selector">
