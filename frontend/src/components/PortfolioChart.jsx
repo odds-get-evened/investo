@@ -83,7 +83,7 @@ function CustomTreemapContent({ x, y, width, height, name, value }) {
  * Props: holdings = [{ symbol, shares, current_price, history? }]
  */
 function PortfolioChart({ holdings = [] }) {
-  // Active tab state: 'treemap' | 'candle'
+  // Active tab state: 'treemap' | 'candle' | 'sectors'
   const [activeTab, setActiveTab] = useState('treemap');
 
   // Symbol selector for candlestick tab (default to first symbol)
@@ -100,9 +100,12 @@ function PortfolioChart({ holdings = [] }) {
   }, [symbolOptions, selectedSymbol]);
 
   // Memoized aggregation to prepare data for charts
-  const { totalValue, treemapData, holdingsBySymbol } = useMemo(() => {
+  const { totalValue, treemapData, holdingsBySymbol, sectorData, assetClassData, hasMetadata } = useMemo(() => {
     let total = 0;
     const bySymbol = {};
+    const bySector = {};
+    const byAssetClass = {};
+    let metadataCount = 0;
 
     // Aggregate holdings defensively
     holdings.forEach((h) => {
@@ -113,6 +116,21 @@ function PortfolioChart({ holdings = [] }) {
 
       // store enriched holding for quick lookup
       bySymbol[h.symbol] = { ...h, value };
+
+      // Aggregate by sector if metadata exists
+      if (h.sector && value > 0) {
+        bySector[h.sector] = (bySector[h.sector] || 0) + value;
+      }
+
+      // Aggregate by asset_class if metadata exists
+      if (h.asset_class && value > 0) {
+        byAssetClass[h.asset_class] = (byAssetClass[h.asset_class] || 0) + value;
+      }
+
+      // Count holdings with any metadata
+      if ((h.sector || h.asset_class) && value > 0) {
+        metadataCount++;
+      }
     });
 
     // Build treemap data array from holdings
@@ -125,7 +143,18 @@ function PortfolioChart({ holdings = [] }) {
     // Filter out zero/invalid values for Treemap (Treemap can misbehave with zeros/NaN)
     const treemapFiltered = treemapArr.filter((t) => Number.isFinite(t.value) && t.value > 0);
 
-    return { totalValue: total, treemapData: treemapFiltered, holdingsBySymbol: bySymbol };
+    // Convert sector and asset class aggregations to chart data
+    const sectorArr = Object.entries(bySector).map(([name, value]) => ({ name, value }));
+    const assetClassArr = Object.entries(byAssetClass).map(([name, value]) => ({ name, value }));
+
+    return { 
+      totalValue: total, 
+      treemapData: treemapFiltered, 
+      holdingsBySymbol: bySymbol,
+      sectorData: sectorArr,
+      assetClassData: assetClassArr,
+      hasMetadata: metadataCount > 0
+    };
   }, [holdings]);
 
   // Helper: format currency values
@@ -252,9 +281,10 @@ function PortfolioChart({ holdings = [] }) {
         <strong>Total Portfolio Value: {fmtMoney(totalValue)}</strong>
       </div>
 
-      {/* Tabs: Treemap and Candlestick only */}
+      {/* Tabs: Treemap, Sectors & Classes, and Candlestick */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
         <button className={`tab-btn ${activeTab === 'treemap' ? 'active' : ''}`} onClick={() => setActiveTab('treemap')}>Treemap</button>
+        <button className={`tab-btn ${activeTab === 'sectors' ? 'active' : ''}`} onClick={() => setActiveTab('sectors')}>Sectors &amp; Classes</button>
         <button className={`tab-btn ${activeTab === 'candle' ? 'active' : ''}`} onClick={() => setActiveTab('candle')}>Candlestick</button>
       </div>
 
@@ -265,6 +295,65 @@ function PortfolioChart({ holdings = [] }) {
             <>
               <div style={{ marginBottom: 8, color: '#666' }}>Treemap shows proportional position sizes (area = value). If Treemap can't render a fallback bar chart will be shown.</div>
               {renderTreemapOrFallback()}
+            </>
+          )}
+
+          {activeTab === 'sectors' && (
+            <>
+              {/* Show guidance message if no metadata is available */}
+              {!hasMetadata ? (
+                <div style={{ padding: 16, background: '#f0f8ff', border: '1px solid #4facfe', borderRadius: 4 }}>
+                  <h4 style={{ marginBottom: 8, color: '#2c5aa0' }}>Metadata Not Available</h4>
+                  <p style={{ marginBottom: 8, color: '#555', lineHeight: 1.5 }}>
+                    Sector and asset class information will be automatically fetched from Yahoo Finance when:
+                  </p>
+                  <ul style={{ marginLeft: 20, marginBottom: 8, color: '#555', lineHeight: 1.6 }}>
+                    <li>You add a new holding to the portfolio</li>
+                    <li>You update prices for existing holdings</li>
+                  </ul>
+                  <p style={{ color: '#555', lineHeight: 1.5 }}>
+                    <strong>To enrich your holdings now:</strong> Use the "Update Prices" button to trigger metadata enrichment for all holdings.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Display sector breakdown */}
+                  <div style={{ marginBottom: 16 }}>
+                    <h4 style={{ marginBottom: 8, color: '#666' }}>By Sector</h4>
+                    {sectorData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={sectorData} margin={{ top: 10, right: 20, left: 20, bottom: 60 }}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-30} textAnchor="end" height={80} />
+                          <YAxis tickFormatter={(v) => `$${v.toFixed(0)}`} />
+                          <Tooltip formatter={(value) => fmtMoney(value)} />
+                          <Bar dataKey="value" fill="#667eea" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div style={{ padding: 12, color: '#999' }}>No sector data available for holdings with metadata.</div>
+                    )}
+                  </div>
+
+                  {/* Display asset class breakdown */}
+                  <div>
+                    <h4 style={{ marginBottom: 8, color: '#666' }}>By Asset Class (Industry)</h4>
+                    {assetClassData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={assetClassData} margin={{ top: 10, right: 20, left: 20, bottom: 60 }}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-30} textAnchor="end" height={80} />
+                          <YAxis tickFormatter={(v) => `$${v.toFixed(0)}`} />
+                          <Tooltip formatter={(value) => fmtMoney(value)} />
+                          <Bar dataKey="value" fill="#764ba2" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div style={{ padding: 12, color: '#999' }}>No asset class data available for holdings with metadata.</div>
+                    )}
+                  </div>
+                </>
+              )}
             </>
           )}
 

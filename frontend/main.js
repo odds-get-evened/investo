@@ -1,8 +1,64 @@
 const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
 const path = require('path');
 const db = require('./database');
+const https = require('https');
 
 let mainWindow;
+
+// Fetch metadata from Yahoo Finance (sector & industry as asset_class)
+// Best-effort with timeout - failures are logged but don't block operations
+// Note: Node.js https module uses agent with connection pooling by default
+// For production use, consider adding a rate limiter or server-side cache
+async function fetchSymbolMetadata(symbol) {
+  return new Promise((resolve) => {
+    // Validate symbol format (alphanumeric, dots, hyphens only)
+    if (!symbol || !/^[A-Za-z0-9.\-]+$/.test(symbol)) {
+      console.log(`Invalid symbol format: ${symbol}`);
+      resolve(null);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      console.log(`Metadata fetch timeout for ${symbol}`);
+      resolve(null);
+    }, 5000); // 5 second timeout
+
+    const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=assetProfile`;
+    
+    https.get(url, { headers: { 'User-Agent': 'Investo/1.0 (Electron Portfolio Manager)' } }, (res) => {
+      let data = '';
+      
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      
+      res.on('end', () => {
+        clearTimeout(timeout);
+        try {
+          const json = JSON.parse(data);
+          const profile = json?.quoteSummary?.result?.[0]?.assetProfile;
+          
+          if (profile) {
+            const sector = profile.sector || null;
+            const assetClass = profile.industry || null;
+            console.log(`Metadata fetched for ${symbol}: sector=${sector}, asset_class=${assetClass}`);
+            resolve({ sector, assetClass });
+          } else {
+            console.log(`No metadata available for ${symbol}`);
+            resolve(null);
+          }
+        } catch (error) {
+          console.error(`Error parsing metadata for ${symbol}:`, error.message);
+          resolve(null);
+        }
+      });
+    }).on('error', (error) => {
+      clearTimeout(timeout);
+      console.error(`Error fetching metadata for ${symbol}:`, error.message);
+      resolve(null);
+    });
+  });
+}
 
 function createMenu() {
   const template = [
@@ -195,6 +251,23 @@ function setupIPCHandlers() {
         holding.purchase_price,
         holding.purchase_date
       );
+      
+      // Best-effort metadata enrichment - asynchronously fetch and update
+      // This runs in the background and doesn't block the response
+      fetchSymbolMetadata(holding.symbol).then((metadata) => {
+        if (metadata) {
+          db.updateHoldingMetadata(
+            portfolioId,
+            holding.symbol,
+            metadata.sector,
+            metadata.assetClass
+          );
+          console.log(`Metadata enrichment completed for ${holding.symbol}`);
+        }
+      }).catch((error) => {
+        console.error(`Metadata enrichment failed for ${holding.symbol}:`, error.message);
+      });
+      
       return { success: true, data: result };
     } catch (error) {
       console.error('Error adding holding:', error);
@@ -255,6 +328,26 @@ function setupIPCHandlers() {
   ipcMain.handle('update-price', async (event, portfolioId, symbol, currentPrice) => {
     try {
       db.updatePrice(portfolioId, symbol, currentPrice);
+      
+      // Check if holding lacks metadata and fetch if needed
+      const holding = db.getHolding(portfolioId, symbol);
+      if (holding && (!holding.sector || !holding.asset_class)) {
+        console.log(`Holding ${symbol} lacks metadata, attempting enrichment...`);
+        fetchSymbolMetadata(symbol).then((metadata) => {
+          if (metadata) {
+            db.updateHoldingMetadata(
+              portfolioId,
+              symbol,
+              metadata.sector,
+              metadata.assetClass
+            );
+            console.log(`Metadata enrichment completed for ${symbol}`);
+          }
+        }).catch((error) => {
+          console.error(`Metadata enrichment failed for ${symbol}:`, error.message);
+        });
+      }
+      
       return { success: true };
     } catch (error) {
       console.error('Error updating price:', error);
