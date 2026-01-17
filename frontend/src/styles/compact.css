@@ -16,7 +16,7 @@
 }
 
 /* Compact body and root - smaller base font size */
-body.compact-mode {
+body {
   font-size: 14px;
   line-height: 1.4;
 }

@@ -144,9 +144,9 @@ const compactTheme = {
     },
   },
   
-  // Border radius - reduced for more compact, angular look
+  // Border radius - completely square for most compact appearance
   shape: {
-    borderRadius: 0, // Completely square for most compact appearance
+    borderRadius: 0, // No border radius for maximum density and sharp edges
   },
   
   // Breakpoints for responsive compact mode
