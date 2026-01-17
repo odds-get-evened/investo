@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   PieChart,
   Pie,
@@ -15,140 +15,175 @@ import {
   ZAxis
 } from 'recharts';
 
-const COLORS = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a'];
+const COLORS = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#fbc531', '#e056fd', '#00d2ff'];
+
+// Custom tooltip for candlestick chart
+function CandlestickTooltip({ active, payload }) {
+  if (active && payload && payload.length > 0) {
+    const data = payload[0].payload;
+    return (
+      <div className="candlestick-tooltip">
+        <p className="tooltip-date"><strong>Date:</strong> {data.date}</p>
+        <p className="tooltip-detail">Open: ${data.open?.toFixed(2) || 'N/A'}</p>
+        <p className="tooltip-detail">High: ${data.high?.toFixed(2) || 'N/A'}</p>
+        <p className="tooltip-detail">Low: ${data.low?.toFixed(2) || 'N/A'}</p>
+        <p className="tooltip-detail">Close: ${data.close?.toFixed(2) || 'N/A'}</p>
+      </div>
+    );
+  }
+  return null;
+}
+
+// Generate synthetic demo candlestick data when real history is not available
+function generateSyntheticHistory(basePrice = 100, points = 30) {
+  const history = [];
+  let currentPrice = basePrice;
+  
+  for (let i = 0; i < points; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() - (points - i));
+    
+    // Random walk with volatility
+    const change = (Math.random() - 0.5) * 4;
+    currentPrice = Math.max(currentPrice + change, basePrice * 0.7);
+    
+    const open = currentPrice;
+    const close = currentPrice + (Math.random() - 0.5) * 3;
+    const high = Math.max(open, close) + Math.random() * 2;
+    const low = Math.min(open, close) - Math.random() * 2;
+    
+    history.push({
+      date: date.toISOString().split('T')[0],
+      open: parseFloat(open.toFixed(2)),
+      high: parseFloat(high.toFixed(2)),
+      low: parseFloat(low.toFixed(2)),
+      close: parseFloat(close.toFixed(2))
+    });
+    
+    currentPrice = close;
+  }
+  
+  return history;
+}
 
 function PortfolioChart({ holdings }) {
-  // State management for tabs and grouping mode
-  const [activeTab, setActiveTab] = useState('sectors');
-  const [groupBy, setGroupBy] = useState('sector'); // 'sector' or 'asset_class'
+  const [activeTab, setActiveTab] = useState('sectors'); // 'sectors', 'treemap', 'candlestick'
+  const [groupBy, setGroupBy] = useState('sector'); // 'sector' or 'asset_class' for sectors tab
   const [selectedSymbol, setSelectedSymbol] = useState('');
 
-  // Guard against missing or empty holdings
+  // Initialize selected symbol when switching to candlestick tab or when holdings change
+  React.useEffect(() => {
+    if (activeTab === 'candlestick' && !selectedSymbol && holdings && holdings.length > 0) {
+      setSelectedSymbol(holdings[0].symbol);
+    }
+  }, [activeTab, selectedSymbol, holdings]);
+
+  // Defensive check for empty or invalid holdings
   if (!holdings || holdings.length === 0) {
     return (
       <div className="chart-container">
         <h3>Portfolio Insights</h3>
-        <p style={{ padding: '20px', color: 'var(--text-secondary)' }}>
-          No holdings available to display charts.
-        </p>
+        <div className="empty-state">
+          <p>No holdings available to display insights.</p>
+        </div>
       </div>
     );
   }
 
-  // Helper function to safely parse numbers with fallback
-  const safeParseFloat = (value, fallback = 0) => {
-    const parsed = parseFloat(value);
-    return isNaN(parsed) ? fallback : parsed;
-  };
-
-  // Prepare data for Sectors & Classes pie chart
-  const getPieData = () => {
+  // Prepare data for Sectors & Classes tab
+  const getSectorsData = () => {
     const grouped = {};
     
     holdings.forEach((holding) => {
-      // Calculate position value (shares * current_price)
-      const shares = safeParseFloat(holding.shares);
-      const currentPrice = safeParseFloat(holding.current_price);
-      const value = shares * currentPrice;
+      const shares = parseFloat(holding.shares) || 0;
+      const price = parseFloat(holding.current_price) || 0;
+      const value = shares * price;
       
-      // Get grouping key with fallback to 'Unknown'
+      // Get the grouping key (sector or asset_class)
       const key = groupBy === 'sector' 
         ? (holding.sector || 'Unknown')
         : (holding.asset_class || 'Unknown');
       
-      // Aggregate values by grouping key
-      if (!grouped[key]) {
-        grouped[key] = 0;
+      if (grouped[key]) {
+        grouped[key] += value;
+      } else {
+        grouped[key] = value;
       }
-      grouped[key] += value;
     });
-
-    // Convert to array format for Recharts
-    return Object.entries(grouped).map(([name, value]) => ({
-      name,
-      value
+    
+    return Object.keys(grouped).map(key => ({
+      name: key,
+      value: grouped[key]
     }));
   };
 
-  // Prepare data for Treemap
+  // Prepare data for Treemap tab
   const getTreemapData = () => {
-    return holdings.map((holding, index) => {
-      const shares = safeParseFloat(holding.shares);
-      const currentPrice = safeParseFloat(holding.current_price);
-      const value = shares * currentPrice;
-      
-      return {
-        name: holding.symbol,
-        size: value,
-        shares: shares.toFixed(2),
-        index: index
-      };
-    }).filter(item => item.size > 0); // Filter out zero-value positions
+    return holdings
+      .map((holding) => {
+        const shares = parseFloat(holding.shares) || 0;
+        const price = parseFloat(holding.current_price) || 0;
+        const value = shares * price;
+        
+        return {
+          name: `${holding.symbol} (${shares.toFixed(2)} shares)`,
+          size: value,
+          fill: COLORS[holdings.indexOf(holding) % COLORS.length]
+        };
+      })
+      .filter(item => item.size > 0); // Only show holdings with value
   };
 
-  // Generate synthetic candlestick history for demonstration
-  const generateSyntheticHistory = (symbol, points = 30) => {
-    const history = [];
-    const today = new Date();
-    let basePrice = 100 + Math.random() * 100; // Random starting price between 100-200
-    
-    for (let i = points - 1; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      
-      // Generate realistic OHLC data
-      const open = basePrice + (Math.random() - 0.5) * 5;
-      const close = open + (Math.random() - 0.5) * 10;
-      const high = Math.max(open, close) + Math.random() * 3;
-      const low = Math.min(open, close) - Math.random() * 3;
-      
-      history.push({
-        date: date.toISOString().split('T')[0],
-        open: parseFloat(open.toFixed(2)),
-        high: parseFloat(high.toFixed(2)),
-        low: parseFloat(low.toFixed(2)),
-        close: parseFloat(close.toFixed(2))
-      });
-      
-      // Trend the base price for next iteration
-      basePrice = close;
-    }
-    
-    return history;
-  };
-
-  // Get candlestick data for selected symbol
+  // Prepare data for Candlestick tab
   const getCandlestickData = () => {
     if (!selectedSymbol) return [];
     
     const holding = holdings.find(h => h.symbol === selectedSymbol);
     if (!holding) return [];
     
-    // Use holding.history if available, otherwise generate synthetic data
-    let history = holding.history && Array.isArray(holding.history) && holding.history.length > 0
-      ? holding.history
-      : generateSyntheticHistory(selectedSymbol, 30);
-    
-    // Limit to last 60 points for performance
-    if (history.length > 60) {
-      history = history.slice(-60);
+    // Check if holding has history data
+    if (holding.history && Array.isArray(holding.history) && holding.history.length > 0) {
+      // Use real history, limit to last 60 points for performance
+      return holding.history.slice(-60);
+    } else {
+      // Generate synthetic demo data
+      const basePrice = parseFloat(holding.current_price) || 100;
+      return generateSyntheticHistory(basePrice, 30);
     }
-    
-    // Transform to format suitable for ScatterChart approximation
-    return history.map((point, index) => ({
-      index,
+  };
+
+  // Format candlestick data for ScatterChart (approximates candlesticks)
+  const formatCandlestickForScatter = (data) => {
+    return data.map((point, index) => ({
+      x: index,
       date: point.date,
       open: point.open,
       high: point.high,
       low: point.low,
       close: point.close,
-      // Use close as the primary y-value for scatter point
-      y: point.close
+      // Use open/close for main body
+      y: (point.open + point.close) / 2,
+      // Size represents the range
+      z: Math.abs(point.high - point.low) * 10
     }));
   };
 
+  const sectorsData = getSectorsData();
+  const treemapData = getTreemapData();
+  const candlestickRawData = getCandlestickData();
+  const candlestickData = formatCandlestickForScatter(candlestickRawData);
+
+  // Calculate total value for display
+  const totalValue = holdings.reduce((sum, holding) => {
+    const shares = parseFloat(holding.shares) || 0;
+    const price = parseFloat(holding.current_price) || 0;
+    return sum + (shares * price);
+  }, 0);
+
   // Custom label renderer for pie chart
-  const renderPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+    if (percent < 0.05) return null; // Hide labels for small slices
+    
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * Math.PI / 180);
     const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
@@ -167,10 +202,8 @@ function PortfolioChart({ holdings }) {
     );
   };
 
-  // Custom content renderer for Treemap cells
-  const TreemapContent = (props) => {
-    const { x, y, width, height, name, shares, index } = props;
-    
+  // Custom content for treemap cells
+  const TreemapContent = ({ x, y, width, height, name, size }) => {
     return (
       <g>
         <rect
@@ -178,24 +211,19 @@ function PortfolioChart({ holdings }) {
           y={y}
           width={width}
           height={height}
-          style={{
-            fill: COLORS[index % COLORS.length],
-            stroke: '#fff',
-            strokeWidth: 2
-          }}
+          style={{ stroke: '#fff', strokeWidth: 2 }}
         />
-        {/* Only show label if cell is large enough */}
-        {width > 50 && height > 30 && (
+        {width > 60 && height > 40 && (
           <>
             <text
               x={x + width / 2}
               y={y + height / 2 - 8}
               textAnchor="middle"
               fill="#fff"
-              fontSize={14}
+              fontSize={12}
               fontWeight="bold"
             >
-              {name}
+              {name.length > 20 ? name.substring(0, 18) + '...' : name}
             </text>
             <text
               x={x + width / 2}
@@ -204,7 +232,7 @@ function PortfolioChart({ holdings }) {
               fill="#fff"
               fontSize={11}
             >
-              {shares} shares
+              ${size.toFixed(2)}
             </text>
           </>
         )}
@@ -212,45 +240,20 @@ function PortfolioChart({ holdings }) {
     );
   };
 
-  // Custom tooltip for candlestick chart
-  const CandlestickTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="candle-tooltip">
-          <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>{data.date}</p>
-          <p>Open: ${data.open?.toFixed(2)}</p>
-          <p>High: ${data.high?.toFixed(2)}</p>
-          <p>Low: ${data.low?.toFixed(2)}</p>
-          <p>Close: ${data.close?.toFixed(2)}</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Initialize selected symbol when switching to candlestick tab
-  useEffect(() => {
-    if (activeTab === 'candlestick' && !selectedSymbol && holdings.length > 0) {
-      setSelectedSymbol(holdings[0].symbol);
-    }
-  }, [activeTab, selectedSymbol, holdings]);
-
-  const pieData = getPieData();
-  const treemapData = getTreemapData();
-  const candlestickData = getCandlestickData();
-
   return (
     <div className="chart-container">
       <h3>Portfolio Insights</h3>
-      
-      {/* Tab navigation buttons */}
-      <div style={{ marginBottom: '16px', borderBottom: '1px solid var(--border-primary)' }}>
+      <div style={{ marginBottom: '10px' }}>
+        <strong>Total Portfolio Value: ${totalValue.toFixed(2)}</strong>
+      </div>
+
+      {/* Tab buttons */}
+      <div className="insights-tabs">
         <button
           className={`tab-btn ${activeTab === 'sectors' ? 'active' : ''}`}
           onClick={() => setActiveTab('sectors')}
         >
-          Sectors &amp; Classes
+          Sectors & Classes
         </button>
         <button
           className={`tab-btn ${activeTab === 'treemap' ? 'active' : ''}`}
@@ -266,169 +269,130 @@ function PortfolioChart({ holdings }) {
         </button>
       </div>
 
-      {/* Sectors & Classes Tab */}
-      {activeTab === 'sectors' && (
-        <div className="tab-content">
-          {/* Toggle between sector and asset class grouping */}
-          <div style={{ marginBottom: '12px', display: 'flex', gap: '8px' }}>
-            <button
-              className="btn-small"
-              style={{
-                background: groupBy === 'sector' ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
-                color: groupBy === 'sector' ? 'white' : 'var(--text-primary)'
-              }}
-              onClick={() => setGroupBy('sector')}
-            >
-              By Sector
-            </button>
-            <button
-              className="btn-small"
-              style={{
-                background: groupBy === 'asset_class' ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
-                color: groupBy === 'asset_class' ? 'white' : 'var(--text-primary)'
-              }}
-              onClick={() => setGroupBy('asset_class')}
-            >
-              By Asset Class
-            </button>
-          </div>
-          
-          <ResponsiveContainer width="100%" height={400}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={renderPieLabel}
-                outerRadius={120}
-                fill="#8884d8"
-                dataKey="value"
+      {/* Tab content */}
+      <div className="tab-content">
+        {/* Sectors & Classes Tab */}
+        {activeTab === 'sectors' && (
+          <div>
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ marginRight: '8px', fontSize: '0.9em' }}>Group by:</label>
+              <select
+                value={groupBy}
+                onChange={(e) => setGroupBy(e.target.value)}
+                style={{
+                  padding: '6px 10px',
+                  fontSize: '0.9em',
+                  border: '1px solid var(--border-secondary)',
+                  background: 'var(--input-bg)',
+                  color: 'var(--text-primary)',
+                  borderRadius: '0'
+                }}
               >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {/* Treemap Tab */}
-      {activeTab === 'treemap' && (
-        <div className="tab-content">
-          <ResponsiveContainer width="100%" height={400}>
-            <Treemap
-              data={treemapData}
-              dataKey="size"
-              aspectRatio={4 / 3}
-              stroke="#fff"
-              fill="#8884d8"
-              content={<TreemapContent />}
-            />
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {/* Candlestick Tab */}
-      {activeTab === 'candlestick' && (
-        <div className="tab-content">
-          {/* Symbol selector dropdown */}
-          <div style={{ marginBottom: '12px' }}>
-            <label style={{ marginRight: '8px', fontWeight: '600' }}>Select Symbol:</label>
-            <select
-              className="form-select"
-              value={selectedSymbol}
-              onChange={(e) => setSelectedSymbol(e.target.value)}
-              style={{ minWidth: '150px' }}
-            >
-              {holdings.map((holding) => (
-                <option key={holding.id} value={holding.symbol}>
-                  {holding.symbol}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          {/* Candlestick approximation using ScatterChart */}
-          {candlestickData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={400}>
-              <ScatterChart
-                margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="index"
-                  type="number"
-                  name="Day"
-                  tickFormatter={(index) => {
-                    const point = candlestickData[index];
-                    return point ? point.date.substring(5) : index;
-                  }}
-                />
-                <YAxis
-                  dataKey="y"
-                  type="number"
-                  name="Price"
-                  domain={['auto', 'auto']}
-                  tickFormatter={(value) => `$${value.toFixed(0)}`}
-                />
-                <ZAxis range={[60, 60]} />
-                <Tooltip content={<CandlestickTooltip />} />
-                {/* Scatter points represent candlesticks (approximation) */}
-                <Scatter
-                  data={candlestickData}
-                  fill="#667eea"
-                  shape={(props) => {
-                    const { cx, cy, payload } = props;
-                    if (!payload) return null;
-                    
-                    // Calculate y-positions for OHLC
-                    const yScale = props.yAxis.scale;
-                    const highY = yScale(payload.high);
-                    const lowY = yScale(payload.low);
-                    const openY = yScale(payload.open);
-                    const closeY = yScale(payload.close);
-                    
-                    // Determine candle color (green if close > open, red otherwise)
-                    const isGreen = payload.close >= payload.open;
-                    const color = isGreen ? '#27ae60' : '#e74c3c';
-                    
-                    return (
-                      <g>
-                        {/* High-low line (wick) */}
-                        <line
-                          x1={cx}
-                          y1={highY}
-                          x2={cx}
-                          y2={lowY}
-                          stroke={color}
-                          strokeWidth={1}
-                        />
-                        {/* Open-close rectangle (body) */}
-                        <rect
-                          x={cx - 4}
-                          y={Math.min(openY, closeY)}
-                          width={8}
-                          height={Math.abs(closeY - openY) || 1}
-                          fill={color}
-                          stroke={color}
-                        />
-                      </g>
-                    );
-                  }}
-                />
-              </ScatterChart>
+                <option value="sector">By Sector</option>
+                <option value="asset_class">By Asset Class</option>
+              </select>
+            </div>
+            <ResponsiveContainer width="100%" height={350}>
+              <PieChart>
+                <Pie
+                  data={sectorsData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={renderCustomLabel}
+                  outerRadius={110}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {sectorsData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+                <Legend />
+              </PieChart>
             </ResponsiveContainer>
-          ) : (
-            <p style={{ padding: '20px', color: 'var(--text-secondary)' }}>
-              No price history available for {selectedSymbol}.
-            </p>
-          )}
-        </div>
-      )}
+          </div>
+        )}
+
+        {/* Treemap Tab */}
+        {activeTab === 'treemap' && (
+          <div>
+            <ResponsiveContainer width="100%" height={350}>
+              <Treemap
+                data={treemapData}
+                dataKey="size"
+                ratio={4 / 3}
+                stroke="#fff"
+                fill="#8884d8"
+                content={<TreemapContent />}
+              >
+                <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+              </Treemap>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {/* Candlestick Tab */}
+        {activeTab === 'candlestick' && (
+          <div>
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ marginRight: '8px', fontSize: '0.9em' }}>Symbol:</label>
+              <select
+                value={selectedSymbol}
+                onChange={(e) => setSelectedSymbol(e.target.value)}
+                style={{
+                  padding: '6px 10px',
+                  fontSize: '0.9em',
+                  border: '1px solid var(--border-secondary)',
+                  background: 'var(--input-bg)',
+                  color: 'var(--text-primary)',
+                  borderRadius: '0'
+                }}
+              >
+                {holdings.map((holding) => (
+                  <option key={holding.symbol} value={holding.symbol}>
+                    {holding.symbol}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {candlestickData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={350}>
+                <ScatterChart
+                  margin={{ top: 20, right: 30, bottom: 20, left: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    type="number"
+                    dataKey="x"
+                    name="Index"
+                    tick={false}
+                    label={{ value: 'Time', position: 'insideBottom', offset: -10 }}
+                  />
+                  <YAxis
+                    type="number"
+                    dataKey="y"
+                    name="Price"
+                    label={{ value: 'Price ($)', angle: -90, position: 'insideLeft' }}
+                  />
+                  <ZAxis type="number" dataKey="z" range={[50, 400]} />
+                  <Tooltip content={<CandlestickTooltip />} />
+                  <Scatter
+                    data={candlestickData}
+                    fill="#3498db"
+                    shape="circle"
+                  />
+                </ScatterChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="empty-state" style={{ padding: '40px' }}>
+                <p>No price history available for {selectedSymbol}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
