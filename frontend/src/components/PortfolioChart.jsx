@@ -115,7 +115,12 @@ function PortfolioChart({ holdings = [] }) {
       bySymbol[h.symbol] = { ...h, value };
     });
 
-    const treemapArr = Object.entries(bySymbol).map(([sym, obj]) => ({ name: `${sym} (${obj.shares} sh)`, value: Math.max(0, obj.value || 0), symbol: sym }));
+    // Build treemap data array from holdings
+    const treemapArr = Object.entries(bySymbol).map(([sym, obj]) => {
+      const shares = obj.shares;
+      const positionValue = Math.max(0, obj.value || 0);
+      return { name: `${sym} (${shares} sh)`, value: positionValue, symbol: sym };
+    });
 
     // Filter out zero/invalid values for Treemap (Treemap can misbehave with zeros/NaN)
     const treemapFiltered = treemapArr.filter((t) => Number.isFinite(t.value) && t.value > 0);
@@ -229,6 +234,14 @@ function PortfolioChart({ holdings = [] }) {
     );
   };
 
+  // Wrapper to provide proper coordinates to CandleShape for Recharts Scatter
+  const renderCandleShape = (props) => {
+    const { cx, cy, payload } = props;
+    const pixelX = typeof cx === 'number' ? cx : props.x || 0;
+    const pixelY = typeof cy === 'number' ? cy : props.y || 0;
+    return <CandleShape cx={pixelX} cy={pixelY} payload={payload} />;
+  };
+
   // Component JSX: tab controls and conditional tab content wrapped in ErrorBoundary
   return (
     <div className="chart-container">
@@ -274,7 +287,7 @@ function PortfolioChart({ holdings = [] }) {
                       <XAxis type="category" dataKey="date" name="Date" interval={Math.max(0, Math.floor(candleData.length / 10))} tick={{ fontSize: 12 }} />
                       <YAxis type="number" dataKey="close" name="Price" tickFormatter={(val) => `$${val.toFixed(2)}`} />
                       <Tooltip content={<CandleTooltip />} />
-                      <Scatter name={selectedSymbol} data={candleData} shape={(props) => { const { cx, cy, payload } = props; const pixelX = typeof cx === 'number' ? cx : props.x || 0; const pixelY = typeof cy === 'number' ? cy : props.y || 0; return <CandleShape cx={pixelX} cy={pixelY} payload={payload} />; }} />
+                      <Scatter name={selectedSymbol} data={candleData} shape={renderCandleShape} />
                     </ScatterChart>
                   </ResponsiveContainer>
                 ) : (
