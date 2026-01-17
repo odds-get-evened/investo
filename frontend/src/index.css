@@ -982,3 +982,297 @@ button {
   .charts-section { grid-template-columns: 1fr; }
   .tab-btn { padding: 7px 10px; font-size: 0.95em; }
 }
+
+/* ===================================================================
+   COMPACT MODE STYLES
+   When .compact-mode class is applied to html or root, these rules
+   create a denser UI with reduced spacing and smaller elements.
+   =================================================================== */
+
+/* Compact mode: reduce sidebar width */
+.compact-mode .sidebar {
+  width: 180px;
+}
+
+.compact-mode .main-content {
+  margin-left: 180px;
+  padding: 14px;
+}
+
+/* Compact mode: smaller sidebar header and title */
+.compact-mode .sidebar-header {
+  padding: 10px 12px;
+}
+
+.compact-mode .sidebar-header h1 {
+  font-size: 1.1em;
+}
+
+/* Compact mode: header controls layout */
+.header-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.compact-toggle,
+.compact-mode .theme-toggle {
+  padding: 4px 8px;
+  font-size: 0.9em;
+}
+
+/* Compact mode: tighter portfolio selector */
+.compact-mode .portfolio-selector {
+  padding: 10px 12px;
+}
+
+.compact-mode .portfolio-selector h2 {
+  font-size: 0.8em;
+  margin-bottom: 8px;
+}
+
+.compact-mode .portfolio-btn {
+  padding: 6px 10px;
+  font-size: 0.8em;
+}
+
+.compact-mode .create-portfolio {
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.compact-mode .create-portfolio input {
+  padding: 5px 8px;
+  font-size: 0.8em;
+}
+
+.compact-mode .btn {
+  padding: 5px 10px;
+  font-size: 0.8em;
+}
+
+/* Compact mode: smaller portfolio details */
+.compact-mode .portfolio-details {
+  padding: 20px;
+}
+
+.compact-mode .portfolio-details h2 {
+  font-size: 1.05em;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+}
+
+/* Compact mode: condensed add holding form */
+.compact-mode .add-holding-form {
+  gap: 6px;
+  padding: 8px;
+  margin-bottom: 12px;
+}
+
+.compact-mode .add-holding-form input {
+  padding: 5px 8px;
+  font-size: 0.8em;
+}
+
+/* Compact mode: tighter table rows and cells */
+.compact-mode .holdings-table th,
+.compact-mode .holdings-table td {
+  padding: 6px 8px;
+  font-size: 0.85em;
+}
+
+.compact-mode .holdings-table th {
+  font-size: 0.7em;
+}
+
+/* Compact mode: reduced chart containers */
+.compact-mode .chart-container,
+.compact-mode .performance-chart-container {
+  padding: 10px;
+  margin-top: 12px;
+}
+
+.compact-mode .chart-container h3,
+.compact-mode .performance-chart-container h3 {
+  font-size: 0.9em;
+  margin-bottom: 8px;
+}
+
+/* Compact mode: smaller performance cards */
+.compact-mode .performance-grid {
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.compact-mode .metric-card {
+  padding: 8px;
+}
+
+.compact-mode .metric-card h3 {
+  font-size: 0.65em;
+  margin-bottom: 6px;
+}
+
+.compact-mode .metric-card .value {
+  font-size: 1em;
+}
+
+.compact-mode .metric-card .subtitle {
+  font-size: 0.7em;
+}
+
+/* Compact mode: condensed transaction forms */
+.compact-mode .transactions-section {
+  margin-top: 14px;
+  padding-top: 12px;
+}
+
+.compact-mode .transactions-section h2 {
+  font-size: 1em;
+  margin-bottom: 10px;
+}
+
+.compact-mode .transaction-forms {
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.compact-mode .transaction-form {
+  padding: 8px;
+}
+
+.compact-mode .transaction-form h3 {
+  font-size: 0.8em;
+  margin-bottom: 8px;
+}
+
+.compact-mode .form-grid {
+  gap: 6px;
+}
+
+.compact-mode .form-select,
+.compact-mode .form-input {
+  padding: 5px 8px;
+  font-size: 0.8em;
+}
+
+/* Compact mode: smaller transaction table */
+.compact-mode .transaction-table th,
+.compact-mode .transaction-table td {
+  padding: 8px 12px;
+  font-size: 0.85em;
+}
+
+.compact-mode .transaction-table th {
+  font-size: 0.8em;
+}
+
+/* Compact mode: tighter price update container */
+.compact-mode .price-update-container {
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  gap: 8px;
+}
+
+.compact-mode .btn-update-prices {
+  padding: 8px 14px;
+  font-size: 0.85em;
+}
+
+/* Compact mode: smaller empty state and loading */
+.compact-mode .empty-state {
+  padding: 30px 20px;
+  font-size: 0.9em;
+}
+
+.compact-mode .loading {
+  padding: 40px 30px;
+  font-size: 1em;
+}
+
+/* Compact mode: reduced error message */
+.compact-mode .error {
+  padding: 10px 12px;
+  font-size: 0.85em;
+}
+
+/* Compact mode: smaller buttons */
+.compact-mode .btn-small {
+  padding: 4px 8px;
+  font-size: 0.8em;
+}
+
+.compact-mode .price-input {
+  padding: 4px 6px;
+  font-size: 0.85em;
+}
+
+/* Compact mode: tighter charts section */
+.compact-mode .charts-section {
+  gap: 12px;
+  margin: 14px 0;
+}
+
+/* Compact mode: smaller settings button */
+.compact-mode .sidebar-footer {
+  padding: 8px 12px;
+}
+
+.compact-mode .settings-btn {
+  padding: 6px 10px;
+  font-size: 0.8em;
+}
+
+/* Compact mode: tooltips */
+.compact-mode .custom-tooltip {
+  padding: 8px 10px;
+}
+
+.compact-mode .tooltip-symbol {
+  font-size: 0.9em;
+  margin-bottom: 6px;
+}
+
+.compact-mode .tooltip-value {
+  font-size: 0.85em;
+  margin-bottom: 4px;
+}
+
+.compact-mode .tooltip-detail {
+  font-size: 0.8em;
+}
+
+/* Compact mode: transaction badges */
+.compact-mode .transaction-badge {
+  padding: 3px 8px;
+  font-size: 0.75em;
+}
+
+/* Compact mode: settings adjustments */
+.compact-mode .settings-container {
+  font-size: 0.95em;
+}
+
+.compact-mode .settings-header {
+  padding: 18px 24px;
+}
+
+.compact-mode .settings-content {
+  padding: 24px;
+}
+
+.compact-mode .settings-section {
+  margin-bottom: 24px;
+}
+
+/* Compact mode: tab buttons */
+.compact-mode .tab-btn {
+  padding: 6px 10px;
+  font-size: 0.85em;
+}
+
+.compact-mode .tab-content {
+  padding: 12px 0;
+  min-height: 100px;
+}
+
