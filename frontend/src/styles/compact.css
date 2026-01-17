@@ -1,354 +1,300 @@
-/* Compact UI Theme - Reduces spacing, margins, and typography for denser interface */
+/**
+ * Compact CSS Theme for Investo
+ * 
+ * This file provides condensed spacing, smaller typography, and compact component styles
+ * to improve UI density and create a more condensed user experience.
+ * 
+ * HOW TO ENABLE:
+ * Option 1: Add the "compact-root" class to your root element (e.g., <div id="root" class="compact-root">)
+ * Option 2: Import this file in your main entry point and styles will be available for opt-in usage
+ * Option 3: Apply "compact-*" classes to individual components as needed
+ * 
+ * This is an opt-in stylesheet - importing it does not automatically change your UI.
+ * You must apply the classes to enable the compact styling.
+ */
 
-/* Compact spacing variables - reducing default paddings/margins by ~30-40% */
-:root {
-  --compact-spacing-xs: 4px;
-  --compact-spacing-sm: 6px;
-  --compact-spacing-md: 8px;
-  --compact-spacing-lg: 12px;
-  --compact-spacing-xl: 16px;
-  
-  --compact-font-xs: 0.7em;
-  --compact-font-sm: 0.75em;
-  --compact-font-base: 0.85em;
-  --compact-font-lg: 0.95em;
-  --compact-font-xl: 1.1em;
+/* ============================================
+   COMPACT ROOT STYLES
+   Apply .compact-root to enable global compact mode
+   ============================================ */
+
+.compact-root {
+  /* Reduced spacing scale */
+  --compact-space-xs: 4px;
+  --compact-space-sm: 8px;
+  --compact-space-md: 12px;
+  --compact-space-lg: 16px;
+  --compact-space-xl: 24px;
+
+  /* Smaller typography scale */
+  --compact-font-xs: 11px;
+  --compact-font-sm: 12px;
+  --compact-font-base: 13px;
+  --compact-font-md: 14px;
+  --compact-font-lg: 16px;
+  --compact-font-xl: 18px;
+
+  /* Compact line heights */
+  --compact-line-height-tight: 1.25;
+  --compact-line-height-normal: 1.4;
+  --compact-line-height-relaxed: 1.5;
+
+  /* Compact component sizes */
+  --compact-input-height: 32px;
+  --compact-button-height: 32px;
+  --compact-icon-size: 18px;
 }
 
-/* Compact body and root - smaller base font size */
-body {
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-/* Compact sidebar - reduced width and padding */
-.sidebar {
-  width: 180px;
-}
-
-.sidebar-header {
-  padding: 10px 12px;
-}
-
-.sidebar-header h1 {
-  font-size: 1.1em;
-}
-
-.portfolio-selector {
-  padding: 10px 12px;
-}
-
-.portfolio-selector h2 {
-  font-size: var(--compact-font-xs);
-  margin-bottom: 6px;
-}
-
-.portfolio-list {
-  gap: 4px;
-  margin-bottom: 12px;
-}
-
-.portfolio-btn {
-  padding: 6px 10px;
-  font-size: var(--compact-font-sm);
-}
-
-.create-portfolio {
-  gap: 4px;
-  margin-top: 8px;
-  padding-top: 8px;
-}
-
-.create-portfolio input {
-  padding: 5px 8px;
-  font-size: var(--compact-font-sm);
-}
-
-/* Compact main content - reduced padding */
-.main-content {
-  margin-left: 180px;
-  padding: 12px;
-}
-
-/* Compact portfolio details - tighter spacing */
-.portfolio-details {
-  padding: 16px;
-}
-
-.portfolio-details h2 {
-  font-size: 1em;
-  margin-bottom: 10px;
-  padding-bottom: 6px;
-}
-
-/* Compact add holding form - smaller inputs and buttons */
-.add-holding-form {
-  gap: 6px;
-  padding: 8px;
-  margin-bottom: 12px;
-}
-
-.add-holding-form input {
-  padding: 5px 8px;
-  font-size: var(--compact-font-sm);
-}
-
-/* Compact buttons - smaller padding */
-.btn {
-  padding: 5px 10px;
-  font-size: var(--compact-font-sm);
-}
-
-.btn-small {
-  padding: 4px 8px;
-  font-size: var(--compact-font-xs);
-}
-
-.theme-toggle {
-  padding: 4px 8px;
-  font-size: 0.9em;
-}
-
-/* Compact tables - reduced cell padding and font size */
-.holdings-table th,
-.holdings-table td {
-  padding: 6px 8px;
-  font-size: var(--compact-font-sm);
-}
-
-.holdings-table th {
-  font-size: var(--compact-font-xs);
-}
-
-.transaction-table th,
-.transaction-table td {
-  padding: 8px 12px;
-  font-size: var(--compact-font-sm);
-}
-
-.transaction-table th {
-  font-size: var(--compact-font-xs);
-}
-
-/* Compact cards - reduced padding and smaller text */
-.metric-card {
-  padding: 8px;
-}
-
-.metric-card h3 {
-  font-size: var(--compact-font-xs);
-  margin-bottom: 4px;
-}
-
-.metric-card .value {
-  font-size: 1em;
-  margin-bottom: 2px;
-}
-
-.metric-card .subtitle {
-  font-size: var(--compact-font-xs);
-  margin-top: 2px;
-}
-
-/* Compact performance grid - tighter spacing */
-.performance-grid {
-  gap: 8px;
-  margin-bottom: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-}
-
-/* Compact chart containers */
-.chart-container,
-.performance-chart-container {
-  padding: 10px;
-  margin-top: 12px;
-}
-
-.chart-container h3,
-.performance-chart-container h3 {
-  margin-bottom: 8px;
+/* Global compact adjustments when compact-root is applied */
+.compact-root {
   font-size: var(--compact-font-base);
+  line-height: var(--compact-line-height-normal);
 }
 
-/* Compact charts section */
-.charts-section {
-  gap: 12px;
-  margin: 12px 0;
+.compact-root h1 {
+  font-size: var(--compact-font-xl);
+  margin-bottom: var(--compact-space-md);
 }
 
-/* Compact transaction section */
-.transactions-section {
-  margin-top: 16px;
-  padding-top: 12px;
-}
-
-.transactions-section h2 {
-  margin-bottom: 8px;
+.compact-root h2 {
   font-size: var(--compact-font-lg);
+  margin-bottom: var(--compact-space-sm);
 }
 
-.transaction-forms {
-  gap: 10px;
-  margin-bottom: 12px;
+.compact-root h3 {
+  font-size: var(--compact-font-md);
+  margin-bottom: var(--compact-space-sm);
 }
 
-.transaction-form {
-  padding: 10px;
+.compact-root p {
+  margin-bottom: var(--compact-space-sm);
 }
 
-.transaction-form h3 {
-  margin-bottom: 8px;
-  font-size: var(--compact-font-sm);
-}
+/* ============================================
+   COMPACT CARD COMPONENT
+   ============================================ */
 
-.form-grid {
-  gap: 6px;
-}
-
-.form-select,
-.form-input {
-  padding: 5px 8px;
-  font-size: var(--compact-font-sm);
-}
-
-/* Compact price update container */
-.price-update-container {
-  padding: 10px 14px;
-  margin-bottom: 16px;
-  gap: 8px;
-}
-
-.btn-update-prices {
-  padding: 8px 14px;
-  font-size: var(--compact-font-base);
-}
-
-.update-progress,
-.update-warning {
-  font-size: var(--compact-font-sm);
-  padding: 6px 10px;
-}
-
-.update-note {
-  font-size: var(--compact-font-xs);
-}
-
-/* Compact empty state and error */
-.empty-state {
-  padding: 24px 20px;
-}
-
-.error {
-  padding: 10px 12px;
-  margin-bottom: 12px;
-}
-
-/* Compact settings */
-.settings-header {
-  padding: 16px 24px;
-}
-
-.settings-header h2 {
-  font-size: 1.2em;
-}
-
-.settings-content {
-  padding: 20px;
-}
-
-.settings-section {
-  margin-bottom: 24px;
-}
-
-.settings-section h3 {
-  font-size: 0.95em;
-  margin-bottom: 10px;
-}
-
-.settings-description {
-  font-size: var(--compact-font-sm);
-  margin-bottom: 14px;
-}
-
-.settings-field {
-  margin-bottom: 14px;
-}
-
-.settings-input {
-  padding: 8px 10px;
-  font-size: var(--compact-font-base);
-}
-
-.settings-footer {
-  padding: 16px 24px;
-}
-
-.btn-primary {
-  padding: 8px 16px;
-}
-
-.sidebar-footer {
-  padding: 8px 12px;
-}
-
-.settings-btn {
-  padding: 6px 10px;
-  font-size: var(--compact-font-sm);
-}
-
-/* Compact card component class - for use in CompactCard component */
 .compact-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-primary);
-  padding: 10px;
-  margin-bottom: 12px;
+  background: var(--bg-secondary, #ffffff);
+  border: 1px solid var(--border-primary, #d5dbdb);
+  border-radius: 6px;
+  padding: var(--compact-space-md, 12px);
+  margin-bottom: var(--compact-space-md, 12px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .compact-card .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--border-primary);
+  margin-bottom: var(--compact-space-sm, 8px);
+  padding-bottom: var(--compact-space-sm, 8px);
+  border-bottom: 1px solid var(--border-primary, #d5dbdb);
 }
 
 .compact-card .card-title {
-  font-size: var(--compact-font-base);
+  font-size: var(--compact-font-md, 14px);
   font-weight: 600;
-  color: var(--text-primary);
   margin: 0;
+  color: var(--text-primary, #2c3e50);
 }
 
 .compact-card .card-actions {
   display: flex;
-  gap: 6px;
-  align-items: center;
+  gap: var(--compact-space-xs, 4px);
 }
 
 .compact-card .card-content {
-  font-size: var(--compact-font-sm);
-  color: var(--text-primary);
+  font-size: var(--compact-font-sm, 12px);
+  line-height: var(--compact-line-height-normal, 1.4);
 }
 
-/* Responsive adjustments for compact mode */
-@media (max-width: 1200px) {
-  .charts-section {
-    gap: 10px;
+/* ============================================
+   COMPACT BUTTONS
+   ============================================ */
+
+.compact-button,
+.compact-root button,
+.compact-root .btn {
+  height: var(--compact-button-height, 32px);
+  padding: var(--compact-space-xs, 4px) var(--compact-space-md, 12px);
+  font-size: var(--compact-font-sm, 12px);
+  line-height: var(--compact-line-height-tight, 1.25);
+  border-radius: 4px;
+  min-width: auto;
+}
+
+.compact-button-small {
+  height: 28px;
+  padding: var(--compact-space-xs, 4px) var(--compact-space-sm, 8px);
+  font-size: var(--compact-font-xs, 11px);
+}
+
+/* ============================================
+   COMPACT INPUTS & FORMS
+   ============================================ */
+
+.compact-input,
+.compact-root input[type="text"],
+.compact-root input[type="number"],
+.compact-root input[type="email"],
+.compact-root input[type="password"],
+.compact-root input[type="date"],
+.compact-root select,
+.compact-root textarea {
+  height: var(--compact-input-height, 32px);
+  padding: var(--compact-space-xs, 4px) var(--compact-space-sm, 8px);
+  font-size: var(--compact-font-sm, 12px);
+  line-height: var(--compact-line-height-normal, 1.4);
+  border-radius: 4px;
+}
+
+.compact-root textarea {
+  height: auto;
+  min-height: 60px;
+  padding: var(--compact-space-sm, 8px);
+}
+
+.compact-root label {
+  font-size: var(--compact-font-sm, 12px);
+  margin-bottom: var(--compact-space-xs, 4px);
+}
+
+/* ============================================
+   COMPACT TABLES
+   ============================================ */
+
+.compact-table,
+.compact-root table {
+  font-size: var(--compact-font-sm, 12px);
+}
+
+.compact-table th,
+.compact-root table th {
+  padding: var(--compact-space-xs, 4px) var(--compact-space-sm, 8px);
+  font-size: var(--compact-font-sm, 12px);
+  font-weight: 600;
+  line-height: var(--compact-line-height-tight, 1.25);
+}
+
+.compact-table td,
+.compact-root table td {
+  padding: var(--compact-space-xs, 4px) var(--compact-space-sm, 8px);
+  line-height: var(--compact-line-height-tight, 1.25);
+}
+
+/* ============================================
+   COMPACT LIST ITEMS
+   ============================================ */
+
+.compact-list-item,
+.compact-root li {
+  padding: var(--compact-space-xs, 4px) var(--compact-space-sm, 8px);
+  font-size: var(--compact-font-sm, 12px);
+  line-height: var(--compact-line-height-normal, 1.4);
+}
+
+/* ============================================
+   COMPACT ICON BUTTONS
+   ============================================ */
+
+.compact-icon-button {
+  width: var(--compact-button-height, 32px);
+  height: var(--compact-button-height, 32px);
+  padding: var(--compact-space-xs, 4px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: 1px solid var(--border-primary, #d5dbdb);
+  background: var(--bg-secondary, #ffffff);
+  cursor: pointer;
+}
+
+.compact-icon-button:hover {
+  background: var(--bg-tertiary, #f8f9fa);
+}
+
+.compact-icon-button svg,
+.compact-icon-button img {
+  width: var(--compact-icon-size, 18px);
+  height: var(--compact-icon-size, 18px);
+}
+
+/* ============================================
+   COMPACT SPACING UTILITIES
+   ============================================ */
+
+.compact-mt-xs { margin-top: var(--compact-space-xs, 4px); }
+.compact-mt-sm { margin-top: var(--compact-space-sm, 8px); }
+.compact-mt-md { margin-top: var(--compact-space-md, 12px); }
+.compact-mt-lg { margin-top: var(--compact-space-lg, 16px); }
+
+.compact-mb-xs { margin-bottom: var(--compact-space-xs, 4px); }
+.compact-mb-sm { margin-bottom: var(--compact-space-sm, 8px); }
+.compact-mb-md { margin-bottom: var(--compact-space-md, 12px); }
+.compact-mb-lg { margin-bottom: var(--compact-space-lg, 16px); }
+
+.compact-p-xs { padding: var(--compact-space-xs, 4px); }
+.compact-p-sm { padding: var(--compact-space-sm, 8px); }
+.compact-p-md { padding: var(--compact-space-md, 12px); }
+.compact-p-lg { padding: var(--compact-space-lg, 16px); }
+
+.compact-gap-xs { gap: var(--compact-space-xs, 4px); }
+.compact-gap-sm { gap: var(--compact-space-sm, 8px); }
+.compact-gap-md { gap: var(--compact-space-md, 12px); }
+
+/* ============================================
+   RESPONSIVE TWEAKS
+   ============================================ */
+
+/* For smaller screens, make compact mode even more condensed */
+@media (max-width: 768px) {
+  .compact-root {
+    --compact-space-xs: 3px;
+    --compact-space-sm: 6px;
+    --compact-space-md: 10px;
+    --compact-space-lg: 14px;
+    --compact-font-xs: 10px;
+    --compact-font-sm: 11px;
+    --compact-font-base: 12px;
+    --compact-input-height: 30px;
+    --compact-button-height: 30px;
+  }
+
+  .compact-card {
+    padding: var(--compact-space-sm, 6px);
   }
 }
 
-@media (max-width: 900px) {
-  .main-content {
-    margin-left: 0;
-    padding: 10px;
+/* For larger screens, allow slightly more breathing room */
+@media (min-width: 1440px) {
+  .compact-root {
+    --compact-space-md: 14px;
+    --compact-space-lg: 18px;
+    --compact-space-xl: 28px;
   }
-  
-  .sidebar {
-    width: 160px;
-  }
-  
-  .transaction-forms {
-    gap: 8px;
-  }
+}
+
+/* ============================================
+   DARK MODE SUPPORT
+   Respects existing dark mode variables
+   ============================================ */
+
+:root[data-theme="dark"] .compact-card {
+  background: var(--bg-secondary, #2a2a2a);
+  border-color: var(--border-primary, #404040);
+}
+
+:root[data-theme="dark"] .compact-card .card-title {
+  color: var(--text-primary, #e0e0e0);
+}
+
+:root[data-theme="dark"] .compact-icon-button {
+  background: var(--bg-secondary, #2a2a2a);
+  border-color: var(--border-primary, #404040);
+}
+
+:root[data-theme="dark"] .compact-icon-button:hover {
+  background: var(--bg-tertiary, #333333);
 }
