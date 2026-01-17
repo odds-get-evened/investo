@@ -93,6 +93,27 @@ function initDatabase() {
     console.log('Migration not needed or already completed');
   }
 
+  // Add sector and asset_class columns if they don't exist
+  try {
+    const columns = db.prepare("PRAGMA table_info(holdings)").all();
+    const hasSector = columns.some(col => col.name === 'sector');
+    const hasAssetClass = columns.some(col => col.name === 'asset_class');
+
+    if (!hasSector) {
+      console.log('Adding sector column to holdings table...');
+      db.exec('ALTER TABLE holdings ADD COLUMN sector TEXT');
+      console.log('Sector column added!');
+    }
+
+    if (!hasAssetClass) {
+      console.log('Adding asset_class column to holdings table...');
+      db.exec('ALTER TABLE holdings ADD COLUMN asset_class TEXT');
+      console.log('Asset class column added!');
+    }
+  } catch (error) {
+    console.error('Error adding metadata columns:', error);
+  }
+
   console.log('Database initialized successfully!');
 
   return db;
@@ -317,6 +338,48 @@ function getPortfolioPerformance(portfolioId) {
   };
 }
 
+function getHolding(portfolioId, symbol) {
+  const stmt = db.prepare('SELECT * FROM holdings WHERE portfolio_id = ? AND symbol = ?');
+  return stmt.get(portfolioId, symbol);
+}
+
+function updateHoldingMetadata(portfolioId, symbol, sector, assetClass) {
+  // Build update query dynamically to only update non-null values
+  const updates = [];
+  const params = [];
+  
+  if (sector !== null && sector !== undefined) {
+    updates.push('sector = ?');
+    params.push(sector);
+  }
+  
+  if (assetClass !== null && assetClass !== undefined) {
+    updates.push('asset_class = ?');
+    params.push(assetClass);
+  }
+  
+  if (updates.length === 0) {
+    return { success: false, message: 'No metadata to update' };
+  }
+  
+  // Always update the last_updated timestamp
+  updates.push('last_updated = CURRENT_TIMESTAMP');
+  
+  // Add WHERE clause parameters
+  params.push(portfolioId, symbol);
+  
+  const query = `UPDATE holdings SET ${updates.join(', ')} WHERE portfolio_id = ? AND symbol = ?`;
+  const stmt = db.prepare(query);
+  
+  try {
+    stmt.run(...params);
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating holding metadata:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 function closeDatabase() {
   if (db) {
     db.close();
@@ -336,5 +399,7 @@ module.exports = {
   deleteHolding,
   getTransactions,
   getPortfolioPerformance,
+  getHolding,
+  updateHoldingMetadata,
   closeDatabase
 };
