@@ -202,27 +202,76 @@ function App() {
   const fetchPortfolioPerformance = async (portfolioId) => {
     try {
       const response = await window.api.getPortfolioPerformance(portfolioId);
-      if (response.success) { setPortfolioPerformance(response.data); setError(null); } else { setError(response.error || 'Failed to fetch portfolio performance'); }
-    } catch (err) { setError('Failed to fetch portfolio performance'); console.error(err); }
+      if (response.success) {
+        setPortfolioPerformance(response.data);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to fetch portfolio performance');
+      }
+    } catch (err) {
+      setError('Failed to fetch portfolio performance');
+      console.error(err);
+    }
   };
 
   // Add dividend
   const addDividend = async (symbol, amount, dividendDate) => {
     if (!selectedPortfolio) return;
-    try { const response = await window.api.addDividend(selectedPortfolio.id, symbol, amount, dividendDate); if (response.success) { fetchPortfolioPerformance(selectedPortfolio.id); setError(null); } else { setError(response.error || 'Failed to add dividend'); } } catch (err) { setError('Failed to add dividend'); console.error(err); }
+    try {
+      const response = await window.api.addDividend(selectedPortfolio.id, symbol, amount, dividendDate);
+      if (response.success) {
+        fetchPortfolioPerformance(selectedPortfolio.id);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to add dividend');
+      }
+    } catch (err) {
+      setError('Failed to add dividend');
+      console.error(err);
+    }
   };
 
   // Sell shares
   const sellShares = async (symbol, shares, sellPrice, sellDate) => {
     if (!selectedPortfolio) return;
-    try { const response = await window.api.sellHolding(selectedPortfolio.id, symbol, shares, sellPrice, sellDate); if (response.success) { fetchPortfolioDetails(selectedPortfolio.id); fetchPortfolioPerformance(selectedPortfolio.id); setError(null); } else { setError(response.error || 'Failed to sell shares'); } } catch (err) { setError('Failed to sell shares'); console.error(err); }
+    try {
+      const response = await window.api.sellHolding(selectedPortfolio.id, symbol, shares, sellPrice, sellDate);
+      if (response.success) {
+        fetchPortfolioDetails(selectedPortfolio.id);
+        fetchPortfolioPerformance(selectedPortfolio.id);
+        setError(null);
+      } else {
+        setError(response.error || 'Failed to sell shares');
+      }
+    } catch (err) {
+      setError('Failed to sell shares');
+      console.error(err);
+    }
   };
 
   // Bulk price updates (used by PriceUpdateButton)
-  const updateMultiplePrices = async (priceUpdates) => { if (!selectedPortfolio) return; for (const update of priceUpdates) { try { await window.api.updatePrice(selectedPortfolio.id, update.symbol, update.price); } catch (err) { console.error(`Failed to update ${update.symbol}:`, err); } } fetchPortfolioDetails(selectedPortfolio.id); fetchPortfolioPerformance(selectedPortfolio.id); };
+  const updateMultiplePrices = async (priceUpdates) => {
+    if (!selectedPortfolio) return;
+    for (const update of priceUpdates) {
+      try {
+        await window.api.updatePrice(selectedPortfolio.id, update.symbol, update.price);
+      } catch (err) {
+        console.error(`Failed to update ${update.symbol}:`, err);
+      }
+    }
+    fetchPortfolioDetails(selectedPortfolio.id);
+    fetchPortfolioPerformance(selectedPortfolio.id);
+  };
 
   // Navigate views from sidebar (validates selection when necessary)
-  const navigateTo = (view) => { if (!selectedPortfolio && view !== 'overview') { setError('Please select a portfolio from the sidebar first'); return; } setError(null); setActiveView(view); };
+  const navigateTo = (view) => {
+    if (!selectedPortfolio && view !== 'overview') {
+      setError('Please select a portfolio from the sidebar first');
+      return;
+    }
+    setError(null);
+    setActiveView(view);
+  };
 
   // Compact add-holding form used in Holdings view
   const renderAddHoldingForm = () => (
@@ -286,10 +335,41 @@ function App() {
                 <button className="btn" onClick={() => setActiveView('overview')}>Overview</button>
               </div>
             </div>
-            {activeView === 'overview' && (<>{portfolioPerformance && <PerformanceDashboard performance={portfolioPerformance} />}<div className="compact-summary" style={{ marginTop: 8 }}><strong>Total Value: {portfolioPerformance?.total_market_value ? `$${portfolioPerformance.total_market_value.toFixed(2)}` : '$0.00'}</strong><span style={{ marginLeft: 8, color: 'var(--text-secondary)', fontSize: '0.9em' }}>Use the sidebar to access other screens</span></div><HoldingsTable holdings={portfolioDetails.holdings} onDelete={deleteHolding} onUpdatePrice={updatePrice} /></>)}
-            {activeView === 'holdings' && (<>{renderAddHoldingForm()}<HoldingsTable holdings={portfolioDetails.holdings} onDelete={deleteHolding} onUpdatePrice={updatePrice} /></>)}
-            {activeView === 'charts' && (<><PerformanceChart holdings={portfolioDetails.holdings} /><PortfolioChart holdings={portfolioDetails.holdings} /></>)}
-            {activeView === 'transactions' && (<><div className="transaction-forms compact"><DividendForm holdings={portfolioDetails.holdings} onAddDividend={addDividend} /><SellForm holdings={portfolioDetails.holdings} onSell={sellShares} /></div><TransactionHistory portfolioId={selectedPortfolio.id} /></>)}
+            {activeView === 'overview' && (
+              <>
+                {portfolioPerformance && <PerformanceDashboard performance={portfolioPerformance} />}
+                <div className="compact-summary" style={{ marginTop: 8 }}>
+                  <strong>
+                    Total Value: {portfolioPerformance?.total_market_value ? `$${portfolioPerformance.total_market_value.toFixed(2)}` : '$0.00'}
+                  </strong>
+                  <span style={{ marginLeft: 8, color: 'var(--text-secondary)', fontSize: '0.9em' }}>
+                    Use the sidebar to access other screens
+                  </span>
+                </div>
+                <HoldingsTable holdings={portfolioDetails.holdings} onDelete={deleteHolding} onUpdatePrice={updatePrice} />
+              </>
+            )}
+            {activeView === 'holdings' && (
+              <>
+                {renderAddHoldingForm()}
+                <HoldingsTable holdings={portfolioDetails.holdings} onDelete={deleteHolding} onUpdatePrice={updatePrice} />
+              </>
+            )}
+            {activeView === 'charts' && (
+              <>
+                <PerformanceChart holdings={portfolioDetails.holdings} />
+                <PortfolioChart holdings={portfolioDetails.holdings} />
+              </>
+            )}
+            {activeView === 'transactions' && (
+              <>
+                <div className="transaction-forms compact">
+                  <DividendForm holdings={portfolioDetails.holdings} onAddDividend={addDividend} />
+                  <SellForm holdings={portfolioDetails.holdings} onSell={sellShares} />
+                </div>
+                <TransactionHistory portfolioId={selectedPortfolio.id} />
+              </>
+            )}
           </div>
         )}
       </div>
