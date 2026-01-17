@@ -71,6 +71,13 @@ function PortfolioChart({ holdings }) {
   const [groupBy, setGroupBy] = useState('sector'); // 'sector' or 'asset_class' for sectors tab
   const [selectedSymbol, setSelectedSymbol] = useState('');
 
+  // Initialize selected symbol when switching to candlestick tab or when holdings change
+  React.useEffect(() => {
+    if (activeTab === 'candlestick' && !selectedSymbol && holdings && holdings.length > 0) {
+      setSelectedSymbol(holdings[0].symbol);
+    }
+  }, [activeTab, selectedSymbol, holdings]);
+
   // Defensive check for empty or invalid holdings
   if (!holdings || holdings.length === 0) {
     return (
@@ -166,11 +173,6 @@ function PortfolioChart({ holdings }) {
   const candlestickRawData = getCandlestickData();
   const candlestickData = formatCandlestickForScatter(candlestickRawData);
 
-  // Initialize selected symbol if not set
-  if (activeTab === 'candlestick' && !selectedSymbol && holdings.length > 0) {
-    setSelectedSymbol(holdings[0].symbol);
-  }
-
   // Calculate total value for display
   const totalValue = holdings.reduce((sum, holding) => {
     const shares = parseFloat(holding.shares) || 0;
@@ -251,7 +253,7 @@ function PortfolioChart({ holdings }) {
           className={`tab-btn ${activeTab === 'sectors' ? 'active' : ''}`}
           onClick={() => setActiveTab('sectors')}
         >
-          Sectors &amp; Classes
+          Sectors & Classes
         </button>
         <button
           className={`tab-btn ${activeTab === 'treemap' ? 'active' : ''}`}
