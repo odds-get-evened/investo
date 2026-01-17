@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
 
+/*
+  HoldingsTable.jsx - Responsive table component
+  - Displays holdings in a traditional table on desktop (>900px)
+  - Collapses to stacked card layout on mobile (<900px) to avoid horizontal scroll
+  - Uses data-label attributes for responsive labels in card mode
+  - Maintains all functionality: price updates, delete actions
+*/
+
 function HoldingsTable({ holdings, onDelete, onUpdatePrice, onSell }) {
   const [editingPrice, setEditingPrice] = useState({});
   const [sellingShares, setSellingShares] = useState({});
@@ -57,10 +65,10 @@ function HoldingsTable({ holdings, onDelete, onUpdatePrice, onSell }) {
         <tbody>
           {holdings.map((holding) => (
             <tr key={holding.id}>
-              <td><strong>{holding.symbol}</strong></td>
-              <td>{parseFloat(holding.shares).toFixed(2)}</td>
-              <td>{formatCurrency(holding.average_cost)}</td>
-              <td>
+              <td data-label="Symbol"><strong>{holding.symbol}</strong></td>
+              <td data-label="Shares">{parseFloat(holding.shares).toFixed(2)}</td>
+              <td data-label="Avg Cost">{formatCurrency(holding.average_cost)}</td>
+              <td data-label="Current Price">
                 <div className="price-update">
                   <input
                     type="number"
@@ -79,15 +87,15 @@ function HoldingsTable({ holdings, onDelete, onUpdatePrice, onSell }) {
                   </button>
                 </div>
               </td>
-              <td>{formatCurrency(holding.market_value)}</td>
-              <td>{formatCurrency(holding.cost_basis)}</td>
-              <td className={getColorClass(holding.gain_loss)}>
+              <td data-label="Market Value">{formatCurrency(holding.market_value)}</td>
+              <td data-label="Cost Basis">{formatCurrency(holding.cost_basis)}</td>
+              <td data-label="Gain/Loss" className={getColorClass(holding.gain_loss)}>
                 <strong>{formatCurrency(holding.gain_loss)}</strong>
               </td>
-              <td className={getColorClass(holding.gain_loss_percent)}>
+              <td data-label="Return %" className={getColorClass(holding.gain_loss_percent)}>
                 <strong>{formatPercent(holding.gain_loss_percent)}</strong>
               </td>
-              <td>
+              <td data-label="Actions">
                 <div className="action-buttons">
                   <button
                     className="btn-small btn-danger"
