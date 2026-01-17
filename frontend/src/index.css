@@ -983,6 +983,18 @@ button {
   .tab-btn { padding: 7px 10px; font-size: 0.95em; }
 }
 
+/* Header controls layout - applies to both regular and compact modes */
+.header-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.compact-toggle,
+.theme-toggle {
+  padding: 4px 8px;
+  font-size: 0.9em;
+}
+
 /* ===================================================================
    COMPACT MODE STYLES
    When .compact-mode class is applied to html or root, these rules
@@ -1006,18 +1018,6 @@ button {
 
 .compact-mode .sidebar-header h1 {
   font-size: 1.1em;
-}
-
-/* Compact mode: header controls layout */
-.header-controls {
-  display: flex;
-  gap: 4px;
-}
-
-.compact-toggle,
-.compact-mode .theme-toggle {
-  padding: 4px 8px;
-  font-size: 0.9em;
 }
 
 /* Compact mode: tighter portfolio selector */

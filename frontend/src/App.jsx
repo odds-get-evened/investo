@@ -277,7 +277,7 @@ function App() {
   };
 
   return (
-    <div className={`app ${compactMode ? 'compact-mode' : ''}`}>
+    <div className="app">
       <div className="sidebar">
         <div className="sidebar-header">
           <h1>Investo</h1>
