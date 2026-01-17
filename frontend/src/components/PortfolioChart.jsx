@@ -97,6 +97,15 @@ function PortfolioChart({ holdings = [] }) {
   const symbolOptions = holdings.map((h) => h.symbol).filter(Boolean);
   const [selectedSymbol, setSelectedSymbol] = useState(symbolOptions[0] || null);
 
+  // Update selected symbol when holdings change and current selection is invalid
+  React.useEffect(() => {
+    if (!selectedSymbol && symbolOptions.length > 0) {
+      setSelectedSymbol(symbolOptions[0]);
+    } else if (selectedSymbol && !symbolOptions.includes(selectedSymbol)) {
+      setSelectedSymbol(symbolOptions[0] || null);
+    }
+  }, [symbolOptions, selectedSymbol]);
+
   // Memoized aggregation to prepare data for charts
   const { totalValue, sectorData, classData, treemapData, holdingsBySymbol } = useMemo(() => {
     let total = 0;
@@ -225,7 +234,6 @@ function PortfolioChart({ holdings = [] }) {
   const candleData = useMemo(() => {
     const hist = getHistoryForSymbol(selectedSymbol);
     return hist.map((d) => ({ date: d.date, open: +d.open, high: +d.high, low: +d.low, close: +d.close }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSymbol, holdingsBySymbol]);
 
   // Visual approximation of a candlestick using pixel coords provided by Recharts' Scatter
