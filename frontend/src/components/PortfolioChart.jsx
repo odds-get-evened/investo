@@ -1,16 +1,12 @@
 // frontend/src/components/PortfolioChart.jsx
-// Replaces the old single "Portfolio Distribution" pie with a tabbed insights panel.
-// Tabs: "Sectors & Classes" (pie), "Treemap" (with Bar fallback), "Candlestick" (approx. OHLC).
+// Tabbed insights panel for portfolio visualization.
+// Tabs: "Treemap" (with Bar fallback), "Candlestick" (approx. OHLC).
 // Defensive programming, ErrorBoundary, and concise inline comments included.
 
 import React, { useMemo, useState } from 'react';
 import {
-  PieChart,
-  Pie,
-  Cell,
   ResponsiveContainer,
   Tooltip,
-  Legend,
   Treemap,
   ScatterChart,
   Scatter,
@@ -84,14 +80,11 @@ function CustomTreemapContent({ x, y, width, height, name, value }) {
 
 /**
  * PortfolioChart - main exported component.
- * Props: holdings = [{ symbol, shares, current_price, sector?, asset_class?, history? }]
+ * Props: holdings = [{ symbol, shares, current_price, history? }]
  */
 function PortfolioChart({ holdings = [] }) {
-  // Active tab state: 'pie' | 'treemap' | 'candle'
-  const [activeTab, setActiveTab] = useState('pie');
-
-  // Pie grouping mode: 'sector' or 'class'
-  const [pieMode, setPieMode] = useState('sector');
+  // Active tab state: 'treemap' | 'candle'
+  const [activeTab, setActiveTab] = useState('treemap');
 
   // Symbol selector for candlestick tab (default to first symbol)
   const symbolOptions = holdings.map((h) => h.symbol).filter(Boolean);
@@ -107,10 +100,8 @@ function PortfolioChart({ holdings = [] }) {
   }, [symbolOptions, selectedSymbol]);
 
   // Memoized aggregation to prepare data for charts
-  const { totalValue, sectorData, classData, treemapData, holdingsBySymbol } = useMemo(() => {
+  const { totalValue, treemapData, holdingsBySymbol } = useMemo(() => {
     let total = 0;
-    const sectorMap = {};
-    const classMap = {};
     const bySymbol = {};
 
     // Aggregate holdings defensively
@@ -120,49 +111,20 @@ function PortfolioChart({ holdings = [] }) {
       const value = shares * price; // position value
       total += value;
 
-      const sector = h.sector || 'Unknown';
-      sectorMap[sector] = (sectorMap[sector] || 0) + value;
-
-      const assetClass = h.asset_class || 'Unknown';
-      classMap[assetClass] = (classMap[assetClass] || 0) + value;
-
       // store enriched holding for quick lookup
       bySymbol[h.symbol] = { ...h, value };
     });
 
-    const sectorArr = Object.entries(sectorMap).map(([name, value]) => ({ name, value }));
-    const classArr = Object.entries(classMap).map(([name, value]) => ({ name, value }));
     const treemapArr = Object.entries(bySymbol).map(([sym, obj]) => ({ name: `${sym} (${obj.shares} sh)`, value: Math.max(0, obj.value || 0), symbol: sym }));
 
     // Filter out zero/invalid values for Treemap (Treemap can misbehave with zeros/NaN)
     const treemapFiltered = treemapArr.filter((t) => Number.isFinite(t.value) && t.value > 0);
 
-    return { totalValue: total, sectorData: sectorArr, classData: classArr, treemapData: treemapFiltered, holdingsBySymbol: bySymbol };
+    return { totalValue: total, treemapData: treemapFiltered, holdingsBySymbol: bySymbol };
   }, [holdings]);
 
   // Helper: format currency values
   const fmtMoney = (v) => `$${(v || 0).toFixed(2)}`;
-
-  // Render a Pie chart for provided data
-  const renderPie = (data) => {
-    if (!Array.isArray(data) || data.length === 0) {
-      return <div style={{ padding: 12, color: '#666' }}>No data available for this view.</div>;
-    }
-
-    return (
-      <ResponsiveContainer width="100%" height={400}>
-        <PieChart>
-          <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} label={(entry) => `${entry.name}: ${(entry.value / (totalValue || 1) * 100).toFixed(1)}%`}>
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip formatter={(value) => fmtMoney(value)} />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-    );
-  };
 
   // Attempt to render Treemap; on error, fall back to a simple BarChart to avoid blank app.
   const renderTreemapOrFallback = () => {
@@ -277,9 +239,8 @@ function PortfolioChart({ holdings = [] }) {
         <strong>Total Portfolio Value: {fmtMoney(totalValue)}</strong>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs: Treemap and Candlestick only */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <button className={`tab-btn ${activeTab === 'pie' ? 'active' : ''}`} onClick={() => setActiveTab('pie')}>Sectors & Classes</button>
         <button className={`tab-btn ${activeTab === 'treemap' ? 'active' : ''}`} onClick={() => setActiveTab('treemap')}>Treemap</button>
         <button className={`tab-btn ${activeTab === 'candle' ? 'active' : ''}`} onClick={() => setActiveTab('candle')}>Candlestick</button>
       </div>
@@ -287,24 +248,6 @@ function PortfolioChart({ holdings = [] }) {
       {/* ErrorBoundary prevents single-panel failures from blanking the app */}
       <ErrorBoundary>
         <div className="tab-content" style={{ border: '1px solid #eee', padding: 12, borderRadius: 6 }}>
-          {activeTab === 'pie' && (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                <div>
-                  <label style={{ marginRight: 8 }}>
-                    <input type="radio" name="pieMode" checked={pieMode === 'sector'} onChange={() => setPieMode('sector')} /> By Sector
-                  </label>
-                  <label>
-                    <input type="radio" name="pieMode" checked={pieMode === 'class'} onChange={() => setPieMode('class')} /> By Asset Class
-                  </label>
-                </div>
-                <div style={{ marginLeft: 'auto', color: '#666' }}>{pieMode === 'sector' ? `Groups: ${sectorData.length}` : `Groups: ${classData.length}`}</div>
-              </div>
-
-              {pieMode === 'sector' ? renderPie(sectorData) : renderPie(classData)}
-            </>
-          )}
-
           {activeTab === 'treemap' && (
             <>
               <div style={{ marginBottom: 8, color: '#666' }}>Treemap shows proportional position sizes (area = value). If Treemap can't render a fallback bar chart will be shown.</div>
